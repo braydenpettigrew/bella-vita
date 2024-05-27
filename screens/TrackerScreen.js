@@ -4,7 +4,9 @@ import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 
 function TrackerScreen({ navigation }) {
-  function addButtonPressedHandler() {}
+  function addButtonPressedHandler() {
+    navigation.navigate("AddTracker");
+  }
 
   useLayoutEffect(() => {
     navigation.setOptions({

@@ -7,8 +7,29 @@ import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import TrackerScreen from "./screens/TrackerScreen";
+import AddTrackerScreen from "./screens/AddTrackerScreen";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
+const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+function TrackerStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: "#77b7e2" },
+        headerTintColor: "white",
+      }}
+    >
+      <Stack.Screen name="Tracker" component={TrackerScreen} />
+      <Stack.Screen
+        name="AddTracker"
+        component={AddTrackerScreen}
+        options={{ presentation: "modal" }}
+      />
+    </Stack.Navigator>
+  );
+}
 
 export default function App() {
   return (
@@ -33,9 +54,10 @@ export default function App() {
             }}
           />
           <Tab.Screen
-            name="Tracker"
-            component={TrackerScreen}
+            name="TrackerStack"
+            component={TrackerStack}
             options={{
+              headerShown: false,
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="people" color={color} size={size} />
               ),
