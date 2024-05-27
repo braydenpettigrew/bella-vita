@@ -26,7 +26,6 @@ function TrackerScreen({ navigation }) {
           const points = await fetchPoints();
           const history = await fetchHistory();
           const historyArray = Object.values(history).reverse();
-          console.log("hist: ", historyArray);
           setPoints(points);
           setHistory(historyArray);
         } catch (error) {

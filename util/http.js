@@ -28,6 +28,6 @@ export async function storeHistory(history) {
 
 export async function fetchHistory() {
   const response = await axios.get(`${BACKEND_URL}/history.json`);
-  console.log("Fetch response", response.data);
+  // console.log("Fetch response", response.data);
   return response.data;
 }
