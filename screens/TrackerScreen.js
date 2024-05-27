@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
@@ -29,12 +29,21 @@ function TrackerScreen({ navigation }) {
     <ScrollView>
       <View style={styles.container}>
         <Title>Austin's Points</Title>
-        <IconButton
-          icon="add"
-          size={24}
-          color={Colors.primaryBlue}
-          onPress={addButtonPressedHandler}
-        />
+        <View style={styles.pointsContainer}>
+          <IconButton
+            icon="remove"
+            size={48}
+            color={Colors.primaryYellow}
+            onPress={addButtonPressedHandler}
+          />
+          <Text style={styles.pointsText}>{points}</Text>
+          <IconButton
+            icon="add"
+            size={48}
+            color={Colors.primaryYellow}
+            onPress={addButtonPressedHandler}
+          />
+        </View>
       </View>
     </ScrollView>
   );
@@ -46,5 +55,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+  pointsContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 100,
+    backgroundColor: Colors.primaryBlue,
+    borderRadius: 8,
+    shadowColor: "black",
+    shadowOffset: {
+      width: 2,
+      height: 2,
+    },
+    shadowOpacity: 0.75,
+    shadowRadius: 3,
+    height: 100,
+    width: "75%",
+  },
+  pointsText: {
+    fontSize: 48,
+    color: "white",
   },
 });

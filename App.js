@@ -8,7 +8,7 @@ import Colors from "./constants/colors";
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import TrackerScreen from "./screens/TrackerScreen";
-import AddPointsScreen from "./screens/AddTrackerScreen";
+import AddPointsScreen from "./screens/AddPointsScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const Stack = createNativeStackNavigator();
