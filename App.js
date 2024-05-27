@@ -19,7 +19,7 @@ export default function App() {
             headerStyle: { backgroundColor: "#77b7e2" },
             headerTintColor: "white",
             tabBarStyle: { backgroundColor: "#77b7e2" },
-            tabBarActiveTintColor: "white",
+            tabBarActiveTintColor: "#e2c714",
           }}
         >
           <Tab.Screen
