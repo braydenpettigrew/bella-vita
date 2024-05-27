@@ -1,7 +1,7 @@
-import { Text } from "react-native";
+import Title from "../components/Title";
 
 function SettingsScreen() {
-  return <Text>Welcome to the Settings screen!</Text>;
+  return <Title>Settings</Title>;
 }
 
 export default SettingsScreen;
