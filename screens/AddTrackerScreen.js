@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import Title from "../components/Title";
 
-function AddTrackerScreen() {
+function AddPointsScreen() {
   return (
     <ScrollView>
       <View style={styles.container}>
@@ -11,7 +11,7 @@ function AddTrackerScreen() {
   );
 }
 
-export default AddTrackerScreen;
+export default AddPointsScreen;
 
 const styles = StyleSheet.create({
   container: {

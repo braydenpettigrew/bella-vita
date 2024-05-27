@@ -3,11 +3,12 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import Colors from "./constants/colors";
 
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import TrackerScreen from "./screens/TrackerScreen";
-import AddTrackerScreen from "./screens/AddTrackerScreen";
+import AddPointsScreen from "./screens/AddTrackerScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const Stack = createNativeStackNavigator();
@@ -23,8 +24,8 @@ function TrackerStack() {
     >
       <Stack.Screen name="Tracker" component={TrackerScreen} />
       <Stack.Screen
-        name="AddTracker"
-        component={AddTrackerScreen}
+        name="AddPoints"
+        component={AddPointsScreen}
         options={{ presentation: "modal" }}
       />
     </Stack.Navigator>
@@ -38,10 +39,10 @@ export default function App() {
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={{
-            headerStyle: { backgroundColor: "#77b7e2" },
+            headerStyle: { backgroundColor: Colors.primaryBlue },
             headerTintColor: "white",
-            tabBarStyle: { backgroundColor: "#77b7e2" },
-            tabBarActiveTintColor: "#e2c714",
+            tabBarStyle: { backgroundColor: Colors.primaryBlue },
+            tabBarActiveTintColor: Colors.primaryYellow,
           }}
         >
           <Tab.Screen

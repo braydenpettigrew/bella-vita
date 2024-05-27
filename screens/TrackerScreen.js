@@ -1,29 +1,23 @@
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useLayoutEffect } from "react";
 import Title from "../components/Title";
 import IconButton from "../components/IconButton";
+import Colors from "../constants/colors";
 
 function TrackerScreen({ navigation }) {
   function addButtonPressedHandler() {
-    navigation.navigate("AddTracker");
+    navigation.navigate("AddPoints");
   }
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: ({ tintColor }) => (
-        <IconButton
-          icon="add"
-          size={24}
-          color={tintColor}
-          onPress={addButtonPressedHandler}
-        />
-      ),
-    });
-  }, [navigation, addButtonPressedHandler]);
   return (
     <ScrollView>
       <View style={styles.container}>
         <Title>Trackers</Title>
+        <IconButton
+          icon="add"
+          size={24}
+          color={Colors.primaryBlue}
+          onPress={addButtonPressedHandler}
+        />
       </View>
     </ScrollView>
   );

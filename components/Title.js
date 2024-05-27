@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import Colors from "../constants/colors";
 
 function Title({ children }) {
   return (
@@ -14,7 +15,7 @@ export default Title;
 const styles = StyleSheet.create({
   titleContainer: {
     margin: 16,
-    backgroundColor: "#e2c714",
+    backgroundColor: Colors.primaryYellow,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",

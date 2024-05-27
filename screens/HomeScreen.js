@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
 import Title from "../components/Title";
+import Colors from "../constants/colors";
 
 function HomeScreen() {
   return (
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     padding: 16,
     width: "80%",
     borderBottomWidth: 2,
-    borderBottomColor: "#e2c714",
+    borderBottomColor: Colors.primaryYellow,
   },
   text: {
     textAlign: "center",
