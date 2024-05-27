@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "./constants/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
@@ -17,6 +18,7 @@ import { AuthContext } from "./context/auth-context";
 import { useEffect } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
+import { Alert, Pressable, Text } from "react-native";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -25,7 +27,7 @@ function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.primary500 },
+        headerStyle: { backgroundColor: Colors.primaryBlue },
         headerTintColor: "white",
         headerBackTitle: "Back",
       }}
@@ -37,6 +39,30 @@ function AuthStack() {
 }
 
 function AuthenticatedStack() {
+  authCtx = useContext(AuthContext);
+
+  function logout() {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: () => {
+            // User confirmed deletion, delete the tracker
+            authCtx.logout();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  }
+
   return (
     <>
       <StatusBar style="auto" />
@@ -74,6 +100,13 @@ function AuthenticatedStack() {
           options={{
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="settings" color={color} size={size} />
+            ),
+            headerRight: ({ tintColor }) => (
+              <Pressable onPress={logout}>
+                <Text style={{ color: tintColor, marginRight: 16 }}>
+                  Log out
+                </Text>
+              </Pressable>
             ),
           }}
         />
@@ -125,10 +158,9 @@ function Root() {
   useEffect(() => {
     async function fetchToken() {
       const storedToken = await AsyncStorage.getItem("token");
-      const storedUserId = await AsyncStorage.getItem("userId");
 
       if (storedToken) {
-        authCtx.authenticate(storedToken, storedUserId);
+        authCtx.authenticate(storedToken);
       }
     }
 

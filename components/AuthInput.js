@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   input: {
     paddingVertical: 8,
     paddingHorizontal: 6,
-    backgroundColor: Colors.primaryYellow,
+    backgroundColor: Colors.primaryGray,
     borderRadius: 4,
     fontSize: 16,
   },
