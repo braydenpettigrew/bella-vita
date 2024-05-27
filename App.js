@@ -22,11 +22,15 @@ function TrackerStack() {
         headerTintColor: "white",
       }}
     >
-      <Stack.Screen name="Tracker" component={TrackerScreen} />
+      <Stack.Screen
+        name="Tracker"
+        component={TrackerScreen}
+        options={{ title: "Points" }}
+      />
       <Stack.Screen
         name="AddPoints"
         component={AddPointsScreen}
-        options={{ presentation: "modal" }}
+        options={{ presentation: "modal", title: "Add" }}
       />
     </Stack.Navigator>
   );
@@ -62,6 +66,7 @@ export default function App() {
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="people" color={color} size={size} />
               ),
+              title: "Points",
             }}
           />
           <Tab.Screen

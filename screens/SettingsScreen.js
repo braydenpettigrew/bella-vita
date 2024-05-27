@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 
 function SettingsScreen() {
@@ -6,6 +6,7 @@ function SettingsScreen() {
     <ScrollView>
       <View style={styles.container}>
         <Title>Settings</Title>
+        <Text>Currently there are no settings available.</Text>
       </View>
     </ScrollView>
   );
