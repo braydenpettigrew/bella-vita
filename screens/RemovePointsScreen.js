@@ -23,7 +23,6 @@ function RemovePointsScreen({ navigation, route }) {
 
   function removePressHandler() {
     updatePoints(route.params.points - parseInt(enteredPoints), authCtx.token);
-    console.log("here");
     storeHistory(
       {
         pointsRemoved: enteredPoints,
@@ -32,7 +31,6 @@ function RemovePointsScreen({ navigation, route }) {
       },
       authCtx.token
     );
-    console.log("hereee");
     navigation.goBack();
   }
 
