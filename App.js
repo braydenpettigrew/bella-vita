@@ -10,6 +10,7 @@ import SettingsScreen from "./screens/SettingsScreen";
 import TrackerScreen from "./screens/TrackerScreen";
 import AddPointsScreen from "./screens/AddPointsScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import RemovePointsScreen from "./screens/RemovePointsScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -31,6 +32,11 @@ function TrackerStack() {
         name="AddPoints"
         component={AddPointsScreen}
         options={{ presentation: "modal", title: "Add" }}
+      />
+      <Stack.Screen
+        name="RemovePoints"
+        component={RemovePointsScreen}
+        options={{ presentation: "modal", title: "Remove" }}
       />
     </Stack.Navigator>
   );

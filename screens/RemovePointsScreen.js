@@ -5,18 +5,18 @@ import MyButton from "../components/myButton";
 import { updatePoints } from "../util/http";
 import { useState } from "react";
 
-function AddPointsScreen({ navigation, route }) {
+function RemovePointsScreen({ navigation, route }) {
   const [enteredPoints, setEnteredPoints] = useState(0);
 
-  function addPressHandler() {
-    updatePoints(parseInt(enteredPoints) + route.params.points);
+  function removePressHandler() {
+    updatePoints(route.params.points - parseInt(enteredPoints));
     navigation.goBack();
   }
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Title>Add Points</Title>
+        <Title>Remove Points</Title>
         <Input
           label="Enter Points:"
           invalid={false}
@@ -27,15 +27,15 @@ function AddPointsScreen({ navigation, route }) {
             value: enteredPoints,
           }}
         />
-        <MyButton onPress={addPressHandler} mode="flat">
-          Add
+        <MyButton onPress={removePressHandler} mode="flat">
+          Remove
         </MyButton>
       </View>
     </ScrollView>
   );
 }
 
-export default AddPointsScreen;
+export default RemovePointsScreen;
 
 const styles = StyleSheet.create({
   container: {

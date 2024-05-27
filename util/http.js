@@ -8,12 +8,15 @@ export async function storePoints(points) {
 }
 
 export async function fetchPoints() {
-  const response = await axios.get(
-    `${BACKEND_URL}/points.json?orderBy="id"&equalTo="Austin"`
-  );
-  return response.data["-Nyuw4GsroK5nEDqj9Z0"].points;
+  const response = await axios.get(`${BACKEND_URL}/points.json`);
+  // console.log("Fetch response", response.data);
+  return response.data["-Nyv7PD39t1UwAsEZhxE"].points;
 }
 
-export function updateExpense(newPoints) {
-  return axios.put(BACKEND_URL + `/points.json`, newPoints);
+export async function updatePoints(newPoints) {
+  const id = "-Nyv7PD39t1UwAsEZhxE";
+  const response = await axios.put(`${BACKEND_URL}/points/${id}.json`, {
+    points: newPoints,
+  });
+  // console.log("Update response: ", response);
 }

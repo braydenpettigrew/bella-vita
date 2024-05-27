@@ -1,29 +1,36 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
-import { fetchPoints } from "../util/http";
-import { useEffect, useState } from "react";
+import { fetchPoints, storePoints } from "../util/http";
+import { useEffect, useState, useCallback } from "react";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
 
   function addButtonPressedHandler() {
-    navigation.navigate("AddPoints");
+    navigation.navigate("AddPoints", { points });
   }
 
-  useEffect(() => {
-    async function fetch() {
-      try {
-        const points = await fetchPoints();
-        setPoints(points);
-      } catch (error) {
-        console.log(error);
-      }
-    }
+  function removeButtonPressedHandler() {
+    navigation.navigate("RemovePoints", { points });
+  }
 
-    fetch();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      async function fetchData() {
+        try {
+          const points = await fetchPoints();
+          setPoints(points);
+        } catch (error) {
+          console.log("Error: ", error);
+        }
+      }
+
+      fetchData();
+    }, [navigation])
+  );
 
   return (
     <ScrollView>
@@ -34,7 +41,7 @@ function TrackerScreen({ navigation }) {
             icon="remove"
             size={48}
             color={Colors.primaryYellow}
-            onPress={addButtonPressedHandler}
+            onPress={removeButtonPressedHandler}
           />
           <Text style={styles.pointsText}>{points}</Text>
           <IconButton
