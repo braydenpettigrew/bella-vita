@@ -5,6 +5,7 @@ import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
 import { fetchHistory, fetchPoints, storePoints } from "../util/http";
 import { useEffect, useState, useCallback } from "react";
+import HistoryEntry from "../components/HistoryEntry";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
@@ -24,8 +25,10 @@ function TrackerScreen({ navigation }) {
         try {
           const points = await fetchPoints();
           const history = await fetchHistory();
+          const historyArray = Object.values(history).reverse();
+          console.log("hist: ", historyArray);
           setPoints(points);
-          storeHistory(history);
+          setHistory(historyArray);
         } catch (error) {
           console.log("Error: ", error);
         }
@@ -54,6 +57,10 @@ function TrackerScreen({ navigation }) {
             onPress={addButtonPressedHandler}
           />
         </View>
+        <Title>History</Title>
+        {history.map((item, index) => (
+          <HistoryEntry key={index}>{item}</HistoryEntry>
+        ))}
       </View>
     </ScrollView>
   );
@@ -71,7 +78,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginVertical: 100,
+    marginVertical: 48,
     backgroundColor: Colors.primaryBlue,
     borderRadius: 8,
     shadowColor: "black",
@@ -79,7 +86,7 @@ const styles = StyleSheet.create({
       width: 2,
       height: 2,
     },
-    shadowOpacity: 0.75,
+    shadowOpacity: 0.35,
     shadowRadius: 3,
     height: 100,
     width: "75%",
