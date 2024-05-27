@@ -12,19 +12,25 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { storeHistory, updatePoints } from "../util/http";
 import { useState } from "react";
 import Colors from "../constants/colors";
+import { useContext } from "react";
+import { AuthContext } from "../context/auth-context";
 
 function AddPointsScreen({ navigation, route }) {
   const [enteredPoints, setEnteredPoints] = useState(0);
   const [enteredUser, setEnteredUser] = useState("");
   const [enteredReason, setEnteredReason] = useState("");
+  const authCtx = useContext(AuthContext);
 
   function addPressHandler() {
-    updatePoints(parseInt(enteredPoints) + route.params.points);
-    storeHistory({
-      pointsAdded: enteredPoints,
-      user: enteredUser,
-      reason: enteredReason,
-    });
+    updatePoints(parseInt(enteredPoints) + route.params.points, authCtx.token);
+    storeHistory(
+      {
+        pointsAdded: enteredPoints,
+        user: enteredUser,
+        reason: enteredReason,
+      },
+      authCtx.token
+    );
     navigation.goBack();
   }
 

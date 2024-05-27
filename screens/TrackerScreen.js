@@ -6,10 +6,13 @@ import Colors from "../constants/colors";
 import { fetchHistory, fetchPoints, storePoints } from "../util/http";
 import { useEffect, useState, useCallback } from "react";
 import HistoryEntry from "../components/HistoryEntry";
+import { useContext } from "react";
+import { AuthContext } from "../context/auth-context";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
   const [history, setHistory] = useState([]);
+  const authCtx = useContext(AuthContext);
 
   function addButtonPressedHandler() {
     navigation.navigate("AddPoints", { points });
@@ -23,8 +26,8 @@ function TrackerScreen({ navigation }) {
     useCallback(() => {
       async function fetchData() {
         try {
-          const points = await fetchPoints();
-          const history = await fetchHistory();
+          const points = await fetchPoints(authCtx.token);
+          const history = await fetchHistory(authCtx.token);
           const historyArray = Object.values(history).reverse();
           setPoints(points);
           setHistory(historyArray);
