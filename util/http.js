@@ -20,3 +20,14 @@ export async function updatePoints(newPoints) {
   });
   // console.log("Update response: ", response);
 }
+
+export async function storeHistory(history) {
+  let response = await axios.post(BACKEND_URL + "/history.json", history);
+  return response;
+}
+
+export async function fetchHistory() {
+  const response = await axios.get(`${BACKEND_URL}/history.json`);
+  console.log("Fetch response", response.data);
+  return response;
+}

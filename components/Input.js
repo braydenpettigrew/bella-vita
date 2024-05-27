@@ -29,16 +29,16 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   label: {
-    fontSize: 12,
+    fontSize: 16,
     color: "black",
     marginBottom: 4,
   },
   input: {
     backgroundColor: Colors.primaryGray,
-    color: Colors.primaryBlue,
+    color: "black",
     padding: 6,
     borderRadius: 6,
-    fontSize: 18,
+    fontSize: 16,
   },
   inputMultiline: {
     minHeight: 100,

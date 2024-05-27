@@ -3,11 +3,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
-import { fetchPoints, storePoints } from "../util/http";
+import { fetchHistory, fetchPoints, storePoints } from "../util/http";
 import { useEffect, useState, useCallback } from "react";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
+  const [history, setHistory] = useState([]);
 
   function addButtonPressedHandler() {
     navigation.navigate("AddPoints", { points });
@@ -22,7 +23,9 @@ function TrackerScreen({ navigation }) {
       async function fetchData() {
         try {
           const points = await fetchPoints();
+          const history = await fetchHistory();
           setPoints(points);
+          storeHistory(history);
         } catch (error) {
           console.log("Error: ", error);
         }
