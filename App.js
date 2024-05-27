@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import { Alert, Pressable, Text } from "react-native";
+import { initializeApp } from "./util/auth";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -157,10 +158,14 @@ function Root() {
 
   useEffect(() => {
     async function fetchToken() {
-      const storedToken = await AsyncStorage.getItem("token");
+      let storedToken = await AsyncStorage.getItem("token");
+      let storedRefreshToken = await AsyncStorage.getItem("refreshToken");
 
       if (storedToken) {
-        authCtx.authenticate(storedToken);
+        initializeApp();
+        storedToken = await AsyncStorage.getItem("token");
+        storedRefreshToken = await AsyncStorage.getItem("refreshToken");
+        authCtx.authenticate(storedToken, storedRefreshToken);
       }
     }
 
