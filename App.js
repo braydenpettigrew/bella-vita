@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
+import TrackerScreen from "./screens/TrackerScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,6 +29,15 @@ export default function App() {
             options={{
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="home" color={color} size={size} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Tracker"
+            component={TrackerScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="people" color={color} size={size} />
               ),
             }}
           />
