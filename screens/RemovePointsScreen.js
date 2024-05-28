@@ -55,6 +55,7 @@ function AddPointsScreen({ navigation, route }) {
         pointsRemoved: enteredPoints,
         user: enteredUser.trim(),
         reason: enteredReason.trim(),
+        timestamp: Date.now(),
       },
       authCtx.token
     );
