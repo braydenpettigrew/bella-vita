@@ -132,12 +132,18 @@ function TrackerStack() {
       <Stack.Screen
         name="AddPoints"
         component={AddPointsScreen}
-        options={{ presentation: "modal", title: "Add" }}
+        options={{
+          presentation: "modal",
+          title: "Add",
+        }}
       />
       <Stack.Screen
         name="RemovePoints"
         component={RemovePointsScreen}
-        options={{ presentation: "modal", title: "Remove" }}
+        options={{
+          presentation: "modal",
+          title: "Remove",
+        }}
       />
     </Stack.Navigator>
   );

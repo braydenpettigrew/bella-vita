@@ -1,5 +1,6 @@
 import {
   Keyboard,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,7 +12,7 @@ import Input from "../components/Input";
 import MyButton from "../components/myButton";
 import { MaterialIcons } from "@expo/vector-icons";
 import { storeHistory, updatePoints } from "../util/http";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
 import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
@@ -26,7 +27,17 @@ function AddPointsScreen({ navigation, route }) {
   const [errorVisible, setErrorVisible] = useState(false);
   const authCtx = useContext(AuthContext);
 
-  function addPressHandler() {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: ({ tintColor }) => (
+        <Pressable onPress={() => navigation.goBack()}>
+          <Text style={{ color: tintColor }}>Cancel</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
+
+  function removePressHandler() {
     setPointsInvalid(false);
     setUserInvalid(false);
     setReasonInvalid(false);
@@ -104,7 +115,7 @@ function AddPointsScreen({ navigation, route }) {
             multiline: true,
           }}
         />
-        <MyButton onPress={addPressHandler} mode="flat">
+        <MyButton onPress={removePressHandler} mode="flat">
           Remove
         </MyButton>
         <View style={styles.errorContainer}>
