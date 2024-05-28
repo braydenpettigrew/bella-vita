@@ -31,8 +31,12 @@ function AddPointsScreen({ navigation, route }) {
     setUserInvalid(false);
     setReasonInvalid(false);
 
-    if (enteredPoints === 0 || enteredUser === "" || enteredReason === "") {
-      if (enteredPoints === 0) {
+    if (
+      parseInt(enteredPoints) === 0 ||
+      enteredUser === "" ||
+      enteredReason === ""
+    ) {
+      if (parseInt(enteredPoints) === 0) {
         setPointsInvalid(true);
       }
       if (enteredUser === "") {
@@ -49,8 +53,8 @@ function AddPointsScreen({ navigation, route }) {
     storeHistory(
       {
         pointsRemoved: enteredPoints,
-        user: enteredUser,
-        reason: enteredReason,
+        user: enteredUser.trim(),
+        reason: enteredReason.trim(),
       },
       authCtx.token
     );
