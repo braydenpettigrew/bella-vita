@@ -2,6 +2,7 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -19,9 +20,31 @@ function AddPointsScreen({ navigation, route }) {
   const [enteredPoints, setEnteredPoints] = useState(0);
   const [enteredUser, setEnteredUser] = useState("");
   const [enteredReason, setEnteredReason] = useState("");
+  const [pointsInvalid, setPointsInvalid] = useState(false);
+  const [userInvalid, setUserInvalid] = useState(false);
+  const [reasonInvalid, setReasonInvalid] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
   const authCtx = useContext(AuthContext);
 
   function addPressHandler() {
+    setPointsInvalid(false);
+    setUserInvalid(false);
+    setReasonInvalid(false);
+
+    if (enteredPoints === 0 || enteredUser === "" || enteredReason === "") {
+      if (enteredPoints === 0) {
+        setPointsInvalid(true);
+      }
+      if (enteredUser === "") {
+        setUserInvalid(true);
+      }
+      if (enteredReason === "") {
+        setReasonInvalid(true);
+      }
+
+      setErrorVisible(true);
+      return;
+    }
     updatePoints(parseInt(enteredPoints) + route.params.points, authCtx.token);
     storeHistory(
       {
@@ -48,8 +71,8 @@ function AddPointsScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
         <Input
-          label="Enter Points:"
-          invalid={false}
+          label="How many points do you want to add?"
+          invalid={pointsInvalid}
           style={styles.input}
           textInputConfig={{
             keyboardType: "numeric",
@@ -59,7 +82,7 @@ function AddPointsScreen({ navigation, route }) {
         />
         <Input
           label="Who is adding these points?"
-          invalid={false}
+          invalid={userInvalid}
           style={styles.input}
           textInputConfig={{
             onChangeText: setEnteredUser,
@@ -68,7 +91,7 @@ function AddPointsScreen({ navigation, route }) {
         />
         <Input
           label="Why are you adding points?"
-          invalid={false}
+          invalid={reasonInvalid}
           style={styles.input}
           textInputConfig={{
             onChangeText: setEnteredReason,
@@ -79,6 +102,13 @@ function AddPointsScreen({ navigation, route }) {
         <MyButton onPress={addPressHandler} mode="flat">
           Add
         </MyButton>
+        <View style={styles.errorContainer}>
+          {errorVisible && (
+            <Text style={styles.errorText}>
+              Please fill out all fields. Point value cannot be zero.
+            </Text>
+          )}
+        </View>
       </View>
     </ScrollView>
   );
@@ -100,5 +130,13 @@ const styles = StyleSheet.create({
   input: {
     width: "80%",
     marginVertical: 16,
+  },
+  errorContainer: {
+    width: "75%",
+    marginTop: 24,
+  },
+  errorText: {
+    color: Colors.error,
+    textAlign: "center",
   },
 });
