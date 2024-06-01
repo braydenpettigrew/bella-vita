@@ -10,6 +10,7 @@ import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import TrackerScreen from "./screens/TrackerScreen";
 import AddPointsScreen from "./screens/AddPointsScreen";
+import AllHistoryScreen from "./screens/AllHistoryScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RemovePointsScreen from "./screens/RemovePointsScreen";
 import AuthContextProvider from "./context/auth-context";
@@ -120,7 +121,7 @@ function TrackerStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: "#77b7e2" },
+        headerStyle: { backgroundColor: Colors.primaryBlue },
         headerTintColor: "white",
       }}
     >
@@ -143,6 +144,14 @@ function TrackerStack() {
         options={{
           presentation: "modal",
           title: "Remove",
+        }}
+      />
+      <Stack.Screen
+        name="AllHistory"
+        component={AllHistoryScreen}
+        options={{
+          presentation: "modal",
+          title: "History",
         }}
       />
     </Stack.Navigator>

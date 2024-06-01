@@ -14,6 +14,7 @@ import { useState, useCallback } from "react";
 import HistoryEntry from "../components/HistoryEntry";
 import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
+import MyButton from "../components/myButton";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
@@ -67,10 +68,17 @@ function TrackerScreen({ navigation }) {
             onPress={addButtonPressedHandler}
           />
         </View>
-        <Title>History</Title>
-        {history.map((item, index) => (
+        <Title>Recent History</Title>
+        {history.slice(0, 10).map((item, index) => (
           <HistoryEntry key={index}>{item}</HistoryEntry>
         ))}
+        <MyButton
+          style={styles.historyButton}
+          mode="flat"
+          onPress={() => navigation.navigate("AllHistory")}
+        >
+          View all history
+        </MyButton>
       </View>
     </ScrollView>
   ) : (
@@ -114,5 +122,8 @@ const styles = StyleSheet.create({
   pointsText: {
     fontSize: 48,
     color: "white",
+  },
+  historyButton: {
+    padding: 12,
   },
 });
