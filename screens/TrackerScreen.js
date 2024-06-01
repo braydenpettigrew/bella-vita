@@ -1,10 +1,16 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
-import { fetchHistory, fetchPoints, storePoints } from "../util/http";
-import { useEffect, useState, useCallback } from "react";
+import { fetchHistory, fetchPoints } from "../util/http";
+import { useState, useCallback } from "react";
 import HistoryEntry from "../components/HistoryEntry";
 import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
@@ -12,6 +18,7 @@ import { AuthContext } from "../context/auth-context";
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
   const [history, setHistory] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
   const authCtx = useContext(AuthContext);
 
   function addButtonPressedHandler() {
@@ -31,6 +38,7 @@ function TrackerScreen({ navigation }) {
           const historyArray = Object.values(history).reverse();
           setPoints(points);
           setHistory(historyArray);
+          setIsLoaded(true);
         } catch (error) {
           console.log("Error: ", error);
         }
@@ -40,7 +48,7 @@ function TrackerScreen({ navigation }) {
     }, [navigation])
   );
 
-  return (
+  return isLoaded ? (
     <ScrollView>
       <View style={styles.container}>
         <Title>Austin's Points</Title>
@@ -65,6 +73,10 @@ function TrackerScreen({ navigation }) {
         ))}
       </View>
     </ScrollView>
+  ) : (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator />
+    </View>
   );
 }
 
@@ -74,6 +86,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+  },
+  loadingContainer: {
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   pointsContainer: {
     flex: 1,
