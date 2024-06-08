@@ -39,7 +39,7 @@ function TrackerScreen({ navigation }) {
     let storedRefreshToken = await AsyncStorage.getItem("refreshToken");
 
     if (storedToken) {
-      initializeApp();
+      await initializeApp();
       storedToken = await AsyncStorage.getItem("token");
       storedRefreshToken = await AsyncStorage.getItem("refreshToken");
       authCtx.authenticate(storedToken, storedRefreshToken);

@@ -38,8 +38,8 @@ async function refreshTokens(r) {
     const refreshToken = refreshResponse.data.refresh_token;
 
     // Store the new token in local storage or session storage
-    AsyncStorage.setItem("token", token);
-    AsyncStorage.setItem("refreshToken", refreshToken);
+    await AsyncStorage.setItem("token", token);
+    await AsyncStorage.setItem("refreshToken", refreshToken);
   } catch (error) {
     console.error("Error refreshing token:", error);
   }
