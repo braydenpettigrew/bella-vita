@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,11 +11,13 @@ import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
 import { fetchHistory, fetchPoints } from "../util/http";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useLayoutEffect } from "react";
 import HistoryEntry from "../components/HistoryEntry";
 import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
 import MyButton from "../components/myButton";
+import { initializeApp } from "../util/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
@@ -29,6 +32,29 @@ function TrackerScreen({ navigation }) {
   function removeButtonPressedHandler() {
     navigation.navigate("RemovePoints", { points });
   }
+
+  // Function to refresh token when user clicks refresh button
+  async function fetchToken() {
+    let storedToken = await AsyncStorage.getItem("token");
+    let storedRefreshToken = await AsyncStorage.getItem("refreshToken");
+
+    if (storedToken) {
+      initializeApp();
+      storedToken = await AsyncStorage.getItem("token");
+      storedRefreshToken = await AsyncStorage.getItem("refreshToken");
+      authCtx.authenticate(storedToken, storedRefreshToken);
+    }
+  }
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: ({ tintColor }) => (
+        <Pressable onPress={fetchToken}>
+          <Text style={{ color: tintColor }}>Refresh</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
