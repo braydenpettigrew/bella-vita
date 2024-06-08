@@ -38,20 +38,36 @@ function TrackerScreen({ navigation }) {
     let storedToken = await AsyncStorage.getItem("token");
     let storedRefreshToken = await AsyncStorage.getItem("refreshToken");
 
+    console.log(storedToken);
+
     if (storedToken) {
+      setIsLoaded(false);
       await initializeApp();
       storedToken = await AsyncStorage.getItem("token");
       storedRefreshToken = await AsyncStorage.getItem("refreshToken");
       authCtx.authenticate(storedToken, storedRefreshToken);
+      setIsLoaded(true);
     }
+
+    console.log(storedToken);
   }
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: ({ tintColor }) => (
-        <Pressable onPress={fetchToken}>
-          <Text style={{ color: tintColor }}>Refresh</Text>
-        </Pressable>
+      headerLeft: ({ tintColor }) => (
+        <View
+          style={{
+            position: "absolute",
+            left: -12,
+          }}
+        >
+          <IconButton
+            icon="refresh"
+            size={24}
+            color={tintColor}
+            onPress={fetchToken}
+          />
+        </View>
       ),
     });
   }, [navigation]);
@@ -72,7 +88,7 @@ function TrackerScreen({ navigation }) {
       }
 
       fetchData();
-    }, [navigation])
+    }, [navigation, authCtx.token])
   );
 
   return isLoaded ? (
