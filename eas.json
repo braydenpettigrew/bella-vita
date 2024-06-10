@@ -13,10 +13,6 @@
     "production": {}
   },
   "submit": {
-    "production": {
-      "entitlements": {
-        "apns-environment": "production"
-      }
-    }
+    "production": {}
   }
 }
