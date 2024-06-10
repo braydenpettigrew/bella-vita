@@ -11,7 +11,7 @@ import Title from "../components/Title";
 import Input from "../components/Input";
 import MyButton from "../components/myButton";
 import { MaterialIcons } from "@expo/vector-icons";
-import { storeHistory, updatePoints } from "../util/http";
+import { getAllPushTokens, storeHistory, updatePoints } from "../util/http";
 import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
 import { useContext } from "react";
@@ -36,6 +36,22 @@ function AddPointsScreen({ navigation, route }) {
       ),
     });
   }, [navigation]);
+
+  async function sendPushNotificationHandler() {
+    const pushTokensArray = await getAllPushTokens(authCtx.token);
+
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: pushTokensArray,
+        title: "Austin earned points :)",
+        body: "Open the Bella Vita app to see how.",
+      }),
+    });
+  }
 
   function addPressHandler() {
     setPointsInvalid(false);
@@ -70,6 +86,10 @@ function AddPointsScreen({ navigation, route }) {
       },
       authCtx.token
     );
+
+    // Send notifications to other users that points were added.
+    sendPushNotificationHandler();
+
     navigation.goBack();
   }
 

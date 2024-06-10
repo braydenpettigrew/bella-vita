@@ -85,9 +85,6 @@ function AuthenticatedStack() {
       try {
         await storePushToken({ pushToken: pushToken }, authCtx.token);
         console.log("Push token stored successfully on Firebase backend");
-
-        // Set the flag indicating push token has been stored
-        await AsyncStorage.setItem("pushTokenStored", "true");
       } catch (error) {
         console.error("Error storing push token on Firebase backend: ", error);
       }

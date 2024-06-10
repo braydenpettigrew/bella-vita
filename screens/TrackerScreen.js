@@ -25,27 +25,7 @@ function TrackerScreen({ navigation }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const authCtx = useContext(AuthContext);
 
-  async function sendPushNotificationHandler() {
-    const res = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        to: [
-          "ExponentPushToken[oTdscDIUUcCKBjf20Aartt]",
-          "ExponentPushToken[pXW3RiKj8bDwxTXDoUm-u0]",
-          "ExponentPushToken[Cp5ev_GKZAoLljoFtuPpcS]",
-        ],
-        title: "Test - sent from a device!",
-        body: "This is a test!",
-      }),
-    });
-    console.log(res);
-  }
-
   function addButtonPressedHandler() {
-    sendPushNotificationHandler();
     navigation.navigate("AddPoints", { points });
   }
 

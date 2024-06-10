@@ -46,6 +46,7 @@ export async function storePushToken(pushToken, auth) {
   return response;
 }
 
+// Check if a specific push token exists on the backend.
 export async function pushTokenExists(pushToken, auth) {
   try {
     const response = await axios.get(
@@ -61,6 +62,29 @@ export async function pushTokenExists(pushToken, auth) {
       }
     }
     return false;
+  } catch (error) {
+    console.log("Error: ", error);
+    return error;
+  }
+}
+
+// Return a list of all push tokens that are stored on the backend.
+export async function getAllPushTokens(auth) {
+  try {
+    const response = await axios.get(
+      `${BACKEND_URL}/pushtokens.json?auth=${auth}`
+    );
+
+    const pushTokens = [];
+
+    for (const key in response.data) {
+      if (response.data.hasOwnProperty(key)) {
+        const currentPushToken = response.data[key].pushToken;
+        pushTokens.push(currentPushToken);
+      }
+    }
+
+    return pushTokens;
   } catch (error) {
     console.log("Error: ", error);
     return error;
