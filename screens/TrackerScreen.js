@@ -99,14 +99,14 @@ function TrackerScreen({ navigation }) {
           <IconButton
             icon="remove"
             size={48}
-            color={Colors.primaryYellow}
+            color={Colors.primaryRed}
             onPress={removeButtonPressedHandler}
           />
           <Text style={styles.pointsText}>{points}</Text>
           <IconButton
             icon="add"
             size={48}
-            color={Colors.primaryYellow}
+            color={Colors.primaryRed}
             onPress={addButtonPressedHandler}
           />
         </View>

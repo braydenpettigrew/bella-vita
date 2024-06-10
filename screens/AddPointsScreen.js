@@ -82,7 +82,7 @@ function AddPointsScreen({ navigation, route }) {
             <MaterialIcons
               name="keyboard-hide"
               size={40}
-              color={Colors.primaryYellow}
+              color={Colors.primaryRed}
             />
           </TouchableOpacity>
         </View>

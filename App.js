@@ -73,7 +73,7 @@ function AuthenticatedStack() {
           headerStyle: { backgroundColor: Colors.primaryBlue },
           headerTintColor: "white",
           tabBarStyle: { backgroundColor: Colors.primaryBlue },
-          tabBarActiveTintColor: Colors.primaryYellow,
+          tabBarActiveTintColor: Colors.primaryRed,
         }}
       >
         <Tab.Screen

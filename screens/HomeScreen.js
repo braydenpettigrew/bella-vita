@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     padding: 16,
     width: "80%",
     borderBottomWidth: 2,
-    borderBottomColor: Colors.primaryYellow,
+    borderBottomColor: Colors.primaryRed,
   },
   text: {
     textAlign: "center",

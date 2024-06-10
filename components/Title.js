@@ -15,7 +15,7 @@ export default Title;
 const styles = StyleSheet.create({
   titleContainer: {
     margin: 16,
-    backgroundColor: Colors.primaryYellow,
+    backgroundColor: Colors.primaryRed,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
