@@ -32,7 +32,11 @@ function TrackerScreen({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: "ExponentPushToken[oTdscDIUUcCKBjf20Aartt]",
+        to: [
+          "ExponentPushToken[oTdscDIUUcCKBjf20Aartt]",
+          "ExponentPushToken[pXW3RiKj8bDwxTXDoUm-u0]",
+          "ExponentPushToken[Cp5ev_GKZAoLljoFtuPpcS]",
+        ],
         title: "Test - sent from a device!",
         body: "This is a test!",
       }),
