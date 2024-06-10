@@ -21,6 +21,8 @@ import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import { Alert, Pressable, Text } from "react-native";
 import { initializeApp } from "./util/auth";
+import * as Notifications from "expo-notifications";
+import { storePushToken } from "./util/http";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -184,7 +186,49 @@ function Root() {
       }
     }
 
+    async function configurePushNotifications() {
+      const pushTokenStored = await AsyncStorage.getItem("pushTokenStored");
+
+      if (!pushTokenStored) {
+        // Get permission for push notifications
+        const { status } = await Notifications.getPermissionsAsync();
+        let finalStatus = status;
+
+        if (finalStatus !== "granted") {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+
+        if (finalStatus !== "granted") {
+          Alert.alert(
+            "Permission required",
+            "Push notifications need the appropriate permissions"
+          );
+          return;
+        }
+
+        // Get the push token
+        const pushTokenData = await Notifications.getExpoPushTokenAsync();
+        const pushToken = pushTokenData.data;
+
+        // Store the push token in Firebase
+        try {
+          await storePushToken({ pushToken: pushToken }, authCtx.token);
+          console.log("Push token stored successfully on Firebase backend.");
+
+          // Set the flag indicating push token has been stored
+          await AsyncStorage.setItem("pushTokenStored", "true");
+        } catch (error) {
+          console.error(
+            "Error storing push token on Firebase backend: ",
+            error
+          );
+        }
+      }
+    }
+
     fetchToken();
+    configurePushNotifications();
   }, []);
 
   return <Navigation />;

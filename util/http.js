@@ -40,3 +40,11 @@ export async function fetchHistory(auth) {
   // console.log("Fetch response", response.data);
   return response.data;
 }
+
+export async function storePushToken(pushToken, auth) {
+  const response = await axios.post(
+    `${BACKEND_URL}/pushtokens.json?auth=${auth}`,
+    pushToken
+  );
+  return response;
+}
