@@ -127,15 +127,6 @@ function AuthenticatedStack() {
         }}
       >
         <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home" color={color} size={size} />
-            ),
-          }}
-        />
-        <Tab.Screen
           name="TrackerStack"
           component={TrackerStack}
           options={{
@@ -144,6 +135,15 @@ function AuthenticatedStack() {
               <Ionicons name="people" color={color} size={size} />
             ),
             title: "Points",
+          }}
+        />
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" color={color} size={size} />
+            ),
           }}
         />
         <Tab.Screen
