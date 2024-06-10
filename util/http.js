@@ -12,7 +12,6 @@ export async function storePoints(points, auth) {
 
 export async function fetchPoints(auth) {
   const response = await axios.get(`${BACKEND_URL}/points.json?auth=${auth}`);
-  // console.log("Fetch response", response.data);
   return response.data["-Nyv7PD39t1UwAsEZhxE"].points;
 }
 
@@ -24,7 +23,6 @@ export async function updatePoints(newPoints, auth) {
       points: newPoints,
     }
   );
-  // console.log("Update response: ", response);
 }
 
 export async function storeHistory(history, auth) {
@@ -37,6 +35,58 @@ export async function storeHistory(history, auth) {
 
 export async function fetchHistory(auth) {
   const response = await axios.get(`${BACKEND_URL}/history.json?auth=${auth}`);
-  // console.log("Fetch response", response.data);
   return response.data;
+}
+
+export async function storePushToken(pushToken, auth) {
+  const response = await axios.post(
+    `${BACKEND_URL}/pushtokens.json?auth=${auth}`,
+    pushToken
+  );
+  return response;
+}
+
+// Check if a specific push token exists on the backend.
+export async function pushTokenExists(pushToken, auth) {
+  try {
+    const response = await axios.get(
+      `${BACKEND_URL}/pushtokens.json?auth=${auth}`
+    );
+
+    for (const key in response.data) {
+      if (response.data.hasOwnProperty(key)) {
+        const currentPushToken = response.data[key].pushToken;
+        if (currentPushToken === pushToken) {
+          return true;
+        }
+      }
+    }
+    return false;
+  } catch (error) {
+    console.log("Error: ", error);
+    return error;
+  }
+}
+
+// Return a list of all push tokens that are stored on the backend.
+export async function getAllPushTokens(auth) {
+  try {
+    const response = await axios.get(
+      `${BACKEND_URL}/pushtokens.json?auth=${auth}`
+    );
+
+    const pushTokens = [];
+
+    for (const key in response.data) {
+      if (response.data.hasOwnProperty(key)) {
+        const currentPushToken = response.data[key].pushToken;
+        pushTokens.push(currentPushToken);
+      }
+    }
+
+    return pushTokens;
+  } catch (error) {
+    console.log("Error: ", error);
+    return error;
+  }
 }
