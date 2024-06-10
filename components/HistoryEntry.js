@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     marginVertical: 8,
     width: "80%",
     borderRadius: 8,
@@ -67,8 +68,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   entryContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "center",
     flexWrap: "wrap",
   },
