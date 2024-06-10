@@ -64,43 +64,37 @@ function AuthenticatedStack() {
       }
 
       // Get the push token
-      const pushTokenData = await Notifications.getExpoPushTokenAsync();
-      const pushToken = pushTokenData.data;
-
-      Alert.alert("Push Token", `The push token is ${pushToken}`);
+      let pushToken;
+      try {
+        const pushTokenData = await Notifications.getExpoPushTokenAsync({
+          projectId: "1665e483-bcfa-4038-8648-d69ae25d7e5d",
+        });
+        pushToken = pushTokenData.data;
+        console.log("GET TOKEN", pushToken);
+      } catch (error) {
+        console.log("GET TOKEN_ERROR", error);
+        Alert.alert("Error", `${error}`);
+      }
 
       // Check if the push token has already been stored in the backend
       try {
-        Alert.alert("Trying 1", `checking if the token exists on the backend`);
         // res will be equal to true or false
         const res = await pushTokenExists(pushToken, authCtx.token);
 
         if (res) {
-          Alert.alert("exists", `the push token exists on the backend`);
           console.log("Push token already exists on the backend.");
           return;
-        } else {
-          Alert.alert(
-            "does not exist",
-            `the push token does not exist on the backend`
-          );
         }
       } catch (error) {
-        Alert.alert("Error checking push token on the backend", `${error}`);
         console.error("Error checking push token on the backend: ", error);
         return;
       }
 
       // If the push token doesn't exist on the backend, proceed to store it
       try {
-        Alert.alert(
-          "Trying 2",
-          `trying to store the push token on the backend`
-        );
         await storePushToken({ pushToken: pushToken }, authCtx.token);
         console.log("Push token stored successfully on Firebase backend");
       } catch (error) {
-        Alert.alert("Error storing push token on Firebase backend", `${error}`);
         console.error("Error storing push token on Firebase backend: ", error);
       }
     }

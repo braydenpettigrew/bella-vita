@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.braydenpettigrew.bellavita",
-      "buildNumber": "11"
+      "buildNumber": "12"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,6 +29,7 @@
       "eas": {
         "projectId": "1665e483-bcfa-4038-8648-d69ae25d7e5d"
       }
-    }
+    },
+    "owner": "braydenpettigrew"
   }
 }
