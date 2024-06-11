@@ -60,13 +60,13 @@ function AddPointsScreen({ navigation, route }) {
 
     if (
       parseInt(enteredPoints) === 0 ||
-      enteredUser === "" ||
+      (!authCtx.name && enteredUser === "") ||
       enteredReason === ""
     ) {
       if (parseInt(enteredPoints) === 0) {
         setPointsInvalid(true);
       }
-      if (enteredUser === "") {
+      if (!authCtx.name && enteredUser === "") {
         setUserInvalid(true);
       }
       if (enteredReason === "") {
@@ -80,7 +80,7 @@ function AddPointsScreen({ navigation, route }) {
     storeHistory(
       {
         pointsRemoved: enteredPoints,
-        user: enteredUser.trim(),
+        user: authCtx.name ? authCtx.name : enteredUser.trim(),
         reason: enteredReason.trim(),
         timestamp: Date.now(),
       },
@@ -116,15 +116,17 @@ function AddPointsScreen({ navigation, route }) {
             value: enteredPoints,
           }}
         />
-        <Input
-          label="Who is removing these points?"
-          invalid={userInvalid}
-          style={styles.input}
-          textInputConfig={{
-            onChangeText: setEnteredUser,
-            value: enteredUser,
-          }}
-        />
+        {!authCtx.name && (
+          <Input
+            label="Who is removing these points?"
+            invalid={userInvalid}
+            style={styles.input}
+            textInputConfig={{
+              onChangeText: setEnteredUser,
+              value: enteredUser,
+            }}
+          />
+        )}
         <Input
           label="Why are you removing points?"
           invalid={reasonInvalid}

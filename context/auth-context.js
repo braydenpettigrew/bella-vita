@@ -2,14 +2,17 @@ import { createContext, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const AuthContext = createContext({
+  name: "",
   token: "",
   refreshToken: "",
   isAuthenticated: false,
   authenticate: (token) => {},
   logout: () => {},
+  changeName: () => {},
 });
 
 function AuthContextProvider({ children }) {
+  const [name, setName] = useState("");
   const [authToken, setAuthToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
 
@@ -47,12 +50,19 @@ function AuthContextProvider({ children }) {
     AsyncStorage.removeItem("refreshToken");
   }
 
+  function changeName(name) {
+    AsyncStorage.setItem("name", name);
+    setName(name);
+  }
+
   const value = {
+    name: name,
     token: authToken,
     refreshToken: refreshToken,
     isAuthenticated: !!authToken,
     authenticate: authenticate,
     logout: logout,
+    changeName: changeName,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

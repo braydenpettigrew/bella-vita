@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   input: {
+    flex: 1,
     backgroundColor: Colors.primaryGray,
     color: "black",
     padding: 6,

@@ -246,6 +246,19 @@ function Root() {
     fetchToken();
   }, []);
 
+  // Get the name of the user
+  useEffect(() => {
+    async function getName() {
+      let userName = await AsyncStorage.getItem("name");
+
+      if (userName) {
+        authCtx.changeName(userName);
+      }
+    }
+
+    getName();
+  }, []);
+
   return <Navigation />;
 }
 
