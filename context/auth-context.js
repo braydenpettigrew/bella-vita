@@ -15,6 +15,7 @@ function AuthContextProvider({ children }) {
   const [name, setName] = useState("");
   const [authToken, setAuthToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
     const loadAuthData = async () => {
@@ -24,6 +25,9 @@ function AuthContextProvider({ children }) {
         if (token) {
           setAuthToken(token);
           setRefreshToken(refresh);
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error(
@@ -39,6 +43,7 @@ function AuthContextProvider({ children }) {
   function authenticate(token, refresh) {
     setAuthToken(token);
     setRefreshToken(refresh);
+    setIsAuthenticated(true);
     AsyncStorage.setItem("token", token);
     AsyncStorage.setItem("refreshToken", refresh);
   }
@@ -46,6 +51,7 @@ function AuthContextProvider({ children }) {
   function logout() {
     setAuthToken("");
     setRefreshToken("");
+    setIsAuthenticated(false);
     AsyncStorage.removeItem("token");
     AsyncStorage.removeItem("refreshToken");
   }
@@ -59,7 +65,7 @@ function AuthContextProvider({ children }) {
     name: name,
     token: authToken,
     refreshToken: refreshToken,
-    isAuthenticated: !!authToken,
+    isAuthenticated: isAuthenticated,
     authenticate: authenticate,
     logout: logout,
     changeName: changeName,

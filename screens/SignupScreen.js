@@ -3,6 +3,7 @@ import AuthContent from "../components/AuthContent";
 import { createUser } from "../util/auth";
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/auth-context";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 function SignupScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -24,7 +25,7 @@ function SignupScreen() {
   }
 
   if (isAuthenticating) {
-    return <Text>Loading</Text>;
+    return <LoadingOverlay />;
   }
 
   return <AuthContent onAuthenticate={signupHandler} />;

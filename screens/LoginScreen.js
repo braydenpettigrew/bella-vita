@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { login } from "../util/auth";
 import { Alert, Text } from "react-native";
 import { AuthContext } from "../context/auth-context";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -24,7 +25,7 @@ function LoginScreen() {
   }
 
   if (isAuthenticating) {
-    return <Text>Loading</Text>;
+    return <LoadingOverlay />;
   }
   return <AuthContent isLogin={true} onAuthenticate={loginHandler} />;
 }
