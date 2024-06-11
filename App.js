@@ -122,7 +122,7 @@ function AuthenticatedStack() {
             title: "Points",
           }}
         />
-        <Tab.Screen
+        {/* <Tab.Screen
           name="Home"
           component={HomeScreen}
           options={{
@@ -130,7 +130,7 @@ function AuthenticatedStack() {
               <Ionicons name="home" color={color} size={size} />
             ),
           }}
-        />
+        /> */}
         <Tab.Screen
           name="SettingsStack"
           component={SettingsStack}

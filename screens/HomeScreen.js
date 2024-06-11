@@ -8,17 +8,8 @@ function HomeScreen() {
       <View style={styles.container}>
         <Title>Bella Vita</Title>
         <View style={styles.contentContainer}>
-          <View style={styles.imageContainer}>
-            <Image
-              style={styles.image}
-              source={require("../assets/cross.png")}
-            />
-          </View>
           <View style={styles.textContainer}>
-            <Text style={styles.text}>
-              He said to all, “If anyone desires to come after me, let him deny
-              himself, take up his cross, and follow me. (Luke 9:23)”
-            </Text>
+            <Text style={styles.text}>This screen is still in progress...</Text>
           </View>
         </View>
       </View>
@@ -38,16 +29,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  imageContainer: {
-    margin: 16,
-    shadowColor: "black",
-    shadowOffset: {
-      width: 2,
-      height: 2,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
-  },
   image: {
     height: 200,
     width: 200,
@@ -57,8 +38,8 @@ const styles = StyleSheet.create({
     margin: 16,
     padding: 16,
     width: "80%",
-    borderBottomWidth: 2,
-    borderBottomColor: Colors.primaryRed,
+    borderWidth: 2,
+    borderColor: Colors.primaryRed,
   },
   text: {
     textAlign: "center",
