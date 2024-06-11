@@ -167,7 +167,7 @@ function TrackerStack() {
         name="AddPoints"
         component={AddPointsScreen}
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           title: "Add",
         }}
       />
@@ -175,7 +175,7 @@ function TrackerStack() {
         name="RemovePoints"
         component={RemovePointsScreen}
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           title: "Remove",
         }}
       />
@@ -183,7 +183,7 @@ function TrackerStack() {
         name="AllHistory"
         component={AllHistoryScreen}
         options={{
-          presentation: "modal",
+          presentation: "fullScreenModal",
           title: "History",
         }}
       />

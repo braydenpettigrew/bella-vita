@@ -1,16 +1,7 @@
-import {
-  Keyboard,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 import Input from "../components/Input";
 import MyButton from "../components/MyButton";
-import { MaterialIcons } from "@expo/vector-icons";
 import { getAllPushTokens, storeHistory, updatePoints } from "../util/http";
 import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
@@ -98,27 +89,10 @@ function AddPointsScreen({ navigation, route }) {
       <View style={styles.container}>
         <View style={styles.titleContainer}>
           <Title>Remove Points</Title>
-          <TouchableOpacity style={styles.dismiss} onPress={Keyboard.dismiss}>
-            <MaterialIcons
-              name="keyboard-hide"
-              size={40}
-              color={Colors.primaryRed}
-            />
-          </TouchableOpacity>
         </View>
-        <Input
-          label="How many points do you want to remove?"
-          invalid={pointsInvalid}
-          style={styles.input}
-          textInputConfig={{
-            keyboardType: "numeric",
-            onChangeText: setEnteredPoints,
-            value: enteredPoints,
-          }}
-        />
         {!authCtx.name && (
           <Input
-            label="Who is removing these points?"
+            label="Who is removing these points? (Set your name in settings to avoid this field!)"
             invalid={userInvalid}
             style={styles.input}
             textInputConfig={{
@@ -127,6 +101,16 @@ function AddPointsScreen({ navigation, route }) {
             }}
           />
         )}
+        <Input
+          label="How many points are you removing?"
+          invalid={pointsInvalid}
+          style={styles.input}
+          textInputConfig={{
+            keyboardType: "numeric",
+            onChangeText: setEnteredPoints,
+            value: enteredPoints,
+          }}
+        />
         <Input
           label="Why are you removing points?"
           invalid={reasonInvalid}
@@ -162,12 +146,9 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
   },
-  dismiss: {
-    marginTop: 20,
-  },
   input: {
     width: "80%",
-    marginVertical: 16,
+    marginVertical: 8,
   },
   errorContainer: {
     width: "75%",
