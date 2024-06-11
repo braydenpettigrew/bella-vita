@@ -23,6 +23,7 @@ import { Alert, Pressable, Text } from "react-native";
 import { initializeApp } from "./util/auth";
 import * as Notifications from "expo-notifications";
 import { pushTokenExists, storePushToken } from "./util/http";
+import ChangeNameScreen from "./screens/ChangeNameScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -102,28 +103,6 @@ function AuthenticatedStack() {
     configurePushNotifications();
   }, []);
 
-  function logout() {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "No",
-          style: "cancel",
-        },
-        {
-          text: "Yes",
-          style: "destructive",
-          onPress: () => {
-            // User confirmed deletion, delete the tracker
-            authCtx.logout();
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  }
-
   return (
     <>
       <StatusBar style="auto" />
@@ -156,18 +135,13 @@ function AuthenticatedStack() {
           }}
         />
         <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
+          name="SettingsStack"
+          component={SettingsStack}
           options={{
+            headerShown: false,
+            title: "Settings",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="settings" color={color} size={size} />
-            ),
-            headerRight: ({ tintColor }) => (
-              <Pressable onPress={logout}>
-                <Text style={{ color: tintColor, marginRight: 16 }}>
-                  Log out
-                </Text>
-              </Pressable>
             ),
           }}
         />
@@ -212,6 +186,57 @@ function TrackerStack() {
           presentation: "modal",
           title: "History",
         }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function SettingsStack() {
+  function logout() {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "No",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: () => {
+            // User confirmed deletion, delete the tracker
+            authCtx.logout();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  }
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: Colors.primaryBlue },
+        headerTintColor: "white",
+      }}
+    >
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          title: "Settings",
+          headerRight: ({ tintColor }) => (
+            <Pressable onPress={logout}>
+              <Text style={{ color: tintColor, marginRight: 16 }}>Log out</Text>
+            </Pressable>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="ChangeName"
+        component={ChangeNameScreen}
+        options={{ title: "Name" }}
       />
     </Stack.Navigator>
   );

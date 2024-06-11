@@ -3,6 +3,7 @@ const Colors = {
   primaryDarkBlue: "#055388",
   primaryRed: "#e46161",
   primaryGray: "#c8c6c6",
+  primaryDarkGray: "#858585",
   error: "#da6161",
 };
 

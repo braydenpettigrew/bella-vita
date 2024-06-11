@@ -1,14 +1,16 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Colors from "../constants/colors";
 
-function MyButton({ children, onPress, mode, style }) {
+function MyButton({ children, onPress, mode, style, buttonStyle }) {
   return (
     <View style={style}>
       <Pressable
         onPress={onPress}
         style={({ pressed }) => pressed && styles.pressed}
       >
-        <View style={[styles.button, mode === "flat" && styles.flat]}>
+        <View
+          style={[styles.button, buttonStyle, mode === "flat" && styles.flat]}
+        >
           <Text style={[styles.buttonText, mode === "flat" && styles.flatText]}>
             {children}
           </Text>

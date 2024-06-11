@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Title from "../components/Title";
 import Input from "../components/Input";
-import MyButton from "../components/myButton";
+import MyButton from "../components/MyButton";
 import { MaterialIcons } from "@expo/vector-icons";
 import { getAllPushTokens, storeHistory, updatePoints } from "../util/http";
 import { useLayoutEffect, useState } from "react";

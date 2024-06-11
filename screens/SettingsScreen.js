@@ -1,62 +1,37 @@
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
-import { useContext, useState, useEffect } from "react";
+import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
-import Input from "../components/Input";
-import MyButton from "../components/myButton";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import MyButton from "../components/MyButton";
+import Colors from "../constants/colors";
 
-function SettingsScreen() {
+function SettingsScreen({ navigation }) {
   const authCtx = useContext(AuthContext);
-  const [name, setName] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
 
   function changeNamePressedHandler() {
-    authCtx.changeName(name);
-    setModalVisible(false);
+    navigation.navigate("ChangeName");
   }
 
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Title>Settings</Title>
-        <View style={styles.nameSettingsContainer}>
-          <Text style={styles.settingsText}>Name: {authCtx.name}</Text>
-          <MyButton onPress={() => setModalVisible(true)}>Change</MyButton>
+        <View style={styles.titleContainer}>
+          <Title>Settings</Title>
         </View>
-      </View>
-      <View style={styles.centeredView}>
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-            setModalVisible(!modalVisible);
-          }}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Input
-                label="New Name:"
-                style={styles.input}
-                textInputConfig={{
-                  onChangeText: setName,
-                }}
-              />
-              <MyButton onPress={changeNamePressedHandler}>
-                Change Name
-              </MyButton>
-            </View>
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitleText}>Account Settings</Text>
+        </View>
+        <View>
+          <View style={styles.nameSettingsContainer}>
+            <Text style={styles.settingsText}>Name: {authCtx.name}</Text>
+            <MyButton
+              onPress={changeNamePressedHandler}
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+            >
+              Change
+            </MyButton>
           </View>
-        </Modal>
+        </View>
       </View>
     </ScrollView>
   );
@@ -67,65 +42,29 @@ export default SettingsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  titleContainer: {
     alignItems: "center",
   },
   nameSettingsContainer: {
-    width: "80%",
     flexDirection: "row",
+    marginHorizontal: 16,
+    padding: 16,
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: Colors.primaryGray,
+    borderRadius: 8,
+  },
+  subtitleContainer: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  subtitleText: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   settingsText: {
     fontSize: 18,
     fontWeight: "400",
-  },
-  input: {
-    marginVertical: 16,
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    width: "75%",
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center",
   },
 });

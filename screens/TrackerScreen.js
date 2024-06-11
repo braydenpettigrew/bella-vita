@@ -15,7 +15,7 @@ import { useState, useCallback, useLayoutEffect } from "react";
 import HistoryEntry from "../components/HistoryEntry";
 import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
-import MyButton from "../components/myButton";
+import MyButton from "../components/MyButton";
 import { initializeApp } from "../util/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

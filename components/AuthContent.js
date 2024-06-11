@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 
-import MyButton from "./myButton";
+import MyButton from "./MyButton";
 import AuthForm from "./AuthForm";
 import Colors from "../constants/colors";
 import { useNavigation } from "@react-navigation/native";
