@@ -18,6 +18,7 @@ import { AuthContext } from "../context/auth-context";
 import MyButton from "../components/MyButton";
 import { initializeApp } from "../util/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
@@ -124,9 +125,7 @@ function TrackerScreen({ navigation }) {
       </View>
     </ScrollView>
   ) : (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator />
-    </View>
+    <LoadingOverlay />
   );
 }
 
@@ -136,12 +135,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
-  },
-  loadingContainer: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
   },
   pointsContainer: {
     flex: 1,

@@ -24,6 +24,7 @@ import { initializeApp } from "./util/auth";
 import * as Notifications from "expo-notifications";
 import { pushTokenExists, storePushToken } from "./util/http";
 import ChangeNameScreen from "./screens/ChangeNameScreen";
+import LoadingOverlay from "./components/LoadingOverlay";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -242,12 +243,11 @@ function SettingsStack() {
   );
 }
 
-function Navigation() {
-  const authCtx = useContext(AuthContext);
+function Navigation({ isAuthenticated }) {
   return (
     <NavigationContainer>
-      {!authCtx.isAuthenticated && <AuthStack />}
-      {authCtx.isAuthenticated && <AuthenticatedStack />}
+      {!isAuthenticated && <AuthStack />}
+      {isAuthenticated && <AuthenticatedStack />}
     </NavigationContainer>
   );
 }
@@ -284,7 +284,11 @@ function Root() {
     getName();
   }, []);
 
-  return <Navigation />;
+  return authCtx.isAuthenticated === null ? (
+    <LoadingOverlay />
+  ) : (
+    <Navigation isAuthenticated={authCtx.isAuthenticated} />
+  );
 }
 
 export default function App() {
