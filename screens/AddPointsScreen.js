@@ -84,12 +84,34 @@ function AddPointsScreen({ navigation, route }) {
     navigation.goBack();
   }
 
+  // Quick add only works if the user has set a name in settings.
+  function quickAddPressHandler(points, reason) {
+    updatePoints(points + route.params.points, authCtx.token);
+    storeHistory(
+      {
+        pointsAdded: points,
+        user: authCtx.name,
+        reason: reason,
+        timestamp: Date.now(),
+      },
+      authCtx.token
+    );
+
+    // Send notifications to other users that points were added.
+    sendPushNotificationHandler();
+
+    navigation.goBack();
+  }
+
   return (
     <ScrollView>
+      <View style={styles.titleContainer}>
+        <Title>Add Points</Title>
+      </View>
+      <View style={styles.subtitleContainer}>
+        <Text style={styles.subtitleText}>Custom Add</Text>
+      </View>
       <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Title>Add Points</Title>
-        </View>
         {!authCtx.name && (
           <Input
             label="Who is adding these points? (Set your name in settings to avoid this field!)"
@@ -132,6 +154,43 @@ function AddPointsScreen({ navigation, route }) {
           )}
         </View>
       </View>
+      <View style={styles.subtitleContainer}>
+        <Text style={styles.subtitleText}>Quick Add</Text>
+      </View>
+      {authCtx.name ? (
+        <>
+          <View style={styles.quickAddContainer}>
+            <Text style={styles.quickAddText}>
+              Random Act of Kindness (+2):{" "}
+            </Text>
+            <MyButton
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+              onPress={quickAddPressHandler.bind(
+                this,
+                2,
+                "Random Act of Kindness"
+              )}
+            >
+              Add
+            </MyButton>
+          </View>
+          <View style={styles.quickAddContainer}>
+            <Text style={styles.quickAddText}>Good Manners (+1): </Text>
+            <MyButton
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+              onPress={quickAddPressHandler.bind(this, 1, "Good manners")}
+            >
+              Add
+            </MyButton>
+          </View>
+        </>
+      ) : (
+        <View style={styles.quickAddAccessContainer}>
+          <Text style={styles.quickAddAccessText}>
+            Set your name in settings to have access to quick add!
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -142,9 +201,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.primaryBlue,
+    marginBottom: 16,
   },
   titleContainer: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   input: {
     width: "80%",
@@ -153,9 +217,41 @@ const styles = StyleSheet.create({
   errorContainer: {
     width: "75%",
     marginTop: 24,
+    marginBottom: 16,
   },
   errorText: {
     color: Colors.error,
+    textAlign: "center",
+  },
+  quickAddContainer: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: Colors.primaryGray,
+    borderRadius: 8,
+    margin: 2,
+  },
+  subtitleContainer: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  subtitleText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  quickAddText: {
+    fontSize: 18,
+    fontWeight: "400",
+  },
+  quickAddAccessContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 16,
+  },
+  quickAddAccessText: {
+    fontSize: 16,
     textAlign: "center",
   },
 });

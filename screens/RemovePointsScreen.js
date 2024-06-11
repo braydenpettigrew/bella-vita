@@ -84,12 +84,34 @@ function AddPointsScreen({ navigation, route }) {
     navigation.goBack();
   }
 
+  // Quick add only works if the user has set a name in settings.
+  function quickRemovePressHandler(points, reason) {
+    updatePoints(route.params.points - points, authCtx.token);
+    storeHistory(
+      {
+        pointsRemoved: points,
+        user: authCtx.name,
+        reason: reason,
+        timestamp: Date.now(),
+      },
+      authCtx.token
+    );
+
+    // Send notifications to other users that points were added.
+    sendPushNotificationHandler();
+
+    navigation.goBack();
+  }
+
   return (
     <ScrollView>
+      <View style={styles.titleContainer}>
+        <Title>Remove Points</Title>
+      </View>
+      <View style={styles.subtitleContainer}>
+        <Text style={styles.subtitleText}>Custom Remove</Text>
+      </View>
       <View style={styles.container}>
-        <View style={styles.titleContainer}>
-          <Title>Remove Points</Title>
-        </View>
         {!authCtx.name && (
           <Input
             label="Who is removing these points? (Set your name in settings to avoid this field!)"
@@ -132,6 +154,37 @@ function AddPointsScreen({ navigation, route }) {
           )}
         </View>
       </View>
+      <View style={styles.subtitleContainer}>
+        <Text style={styles.subtitleText}>Quick Remove</Text>
+      </View>
+      {authCtx.name ? (
+        <>
+          <View style={styles.quickRemoveContainer}>
+            <Text style={styles.quickRemoveText}>Cursing (-1) </Text>
+            <MyButton
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+              onPress={quickRemovePressHandler.bind(this, 1, "Cursing")}
+            >
+              Remove
+            </MyButton>
+          </View>
+          <View style={styles.quickRemoveContainer}>
+            <Text style={styles.quickRemoveText}>Being Rude (-1) </Text>
+            <MyButton
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+              onPress={quickRemovePressHandler.bind(this, 1, "Being rude")}
+            >
+              Remove
+            </MyButton>
+          </View>
+        </>
+      ) : (
+        <View style={styles.quickRemoveAccessContainer}>
+          <Text style={styles.quickRemoveAccessText}>
+            Set your name in settings to have access to quick remove!
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -142,9 +195,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.primaryBlue,
+    marginBottom: 16,
   },
   titleContainer: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   input: {
     width: "80%",
@@ -153,9 +211,41 @@ const styles = StyleSheet.create({
   errorContainer: {
     width: "75%",
     marginTop: 24,
+    marginBottom: 16,
   },
   errorText: {
     color: Colors.error,
+    textAlign: "center",
+  },
+  quickRemoveContainer: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: Colors.primaryGray,
+    borderRadius: 8,
+    margin: 2,
+  },
+  subtitleContainer: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
+  subtitleText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  quickRemoveText: {
+    fontSize: 18,
+    fontWeight: "400",
+  },
+  quickRemoveAccessContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 16,
+  },
+  quickRemoveAccessText: {
+    fontSize: 16,
     textAlign: "center",
   },
 });
