@@ -15,7 +15,9 @@ function LoginScreen() {
     try {
       const tokens = await login(email, password);
       authCtx.authenticate(tokens[0], tokens[1]);
+      authCtx.setUserEmail(tokens[2]);
     } catch (error) {
+      console.log(error);
       Alert.alert(
         "Authentication failed!",
         "Could not log you in. Please check your credentials or try again later!"

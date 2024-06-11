@@ -3,16 +3,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const AuthContext = createContext({
   name: "",
+  email: "",
   token: "",
   refreshToken: "",
   isAuthenticated: false,
   authenticate: (token) => {},
   logout: () => {},
   changeName: () => {},
+  setUserEmail: () => {},
 });
 
 function AuthContextProvider({ children }) {
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [authToken, setAuthToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -61,14 +64,21 @@ function AuthContextProvider({ children }) {
     setName(name);
   }
 
+  function setUserEmail(email) {
+    AsyncStorage.setItem("email", email);
+    setEmail(email);
+  }
+
   const value = {
     name: name,
+    email: email,
     token: authToken,
     refreshToken: refreshToken,
     isAuthenticated: isAuthenticated,
     authenticate: authenticate,
     logout: logout,
     changeName: changeName,
+    setUserEmail: setUserEmail,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

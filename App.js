@@ -72,9 +72,7 @@ function AuthenticatedStack() {
           projectId: "1665e483-bcfa-4038-8648-d69ae25d7e5d",
         });
         pushToken = pushTokenData.data;
-        console.log("GET TOKEN", pushToken);
       } catch (error) {
-        console.log("GET TOKEN_ERROR", error);
         Alert.alert("Error", `${error}`);
       }
 
@@ -84,7 +82,6 @@ function AuthenticatedStack() {
         const res = await pushTokenExists(pushToken, authCtx.token);
 
         if (res) {
-          console.log("Push token already exists on the backend.");
           return;
         }
       } catch (error) {
@@ -95,7 +92,6 @@ function AuthenticatedStack() {
       // If the push token doesn't exist on the backend, proceed to store it
       try {
         await storePushToken({ pushToken: pushToken }, authCtx.token);
-        console.log("Push token stored successfully on Firebase backend");
       } catch (error) {
         console.error("Error storing push token on Firebase backend: ", error);
       }

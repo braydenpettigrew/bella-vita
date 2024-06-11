@@ -23,6 +23,9 @@ function SettingsScreen({ navigation }) {
         </View>
         <View>
           <View style={styles.nameSettingsContainer}>
+            <Text style={styles.settingsText}>Email: {authCtx.email}</Text>
+          </View>
+          <View style={styles.nameSettingsContainer}>
             <Text style={styles.settingsText}>Name: {authCtx.name}</Text>
             <MyButton
               onPress={changeNamePressedHandler}
@@ -54,6 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: Colors.primaryGray,
     borderRadius: 8,
+    margin: 2,
   },
   subtitleContainer: {
     marginHorizontal: 16,
