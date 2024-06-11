@@ -267,17 +267,19 @@ function Root() {
     fetchToken();
   }, []);
 
-  // Get the name of the user
+  // Get the name and email of the user
   useEffect(() => {
-    async function getName() {
+    async function getNameAndEmail() {
       let userName = await AsyncStorage.getItem("name");
+      let userEmail = await AsyncStorage.getItem("email");
 
       if (userName) {
         authCtx.changeName(userName);
+        authCtx.setUserEmail(userEmail);
       }
     }
 
-    getName();
+    getNameAndEmail();
   }, []);
 
   return authCtx.isAuthenticated === null ? (
