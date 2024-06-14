@@ -183,6 +183,24 @@ function AddPointsScreen({ navigation, route }) {
               Add
             </MyButton>
           </View>
+          <View style={styles.quickAddContainer}>
+            <Text style={styles.quickAddText}>Brushing Teeth (+0.5): </Text>
+            <MyButton
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+              onPress={quickAddPressHandler.bind(this, 0.5, "Brushing teeth")}
+            >
+              Add
+            </MyButton>
+          </View>
+          <View style={styles.quickAddContainer}>
+            <Text style={styles.quickAddText}>Showering (+0.5): </Text>
+            <MyButton
+              buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+              onPress={quickAddPressHandler.bind(this, 0.5, "Showering")}
+            >
+              Add
+            </MyButton>
+          </View>
         </>
       ) : (
         <View style={styles.quickAddAccessContainer}>
