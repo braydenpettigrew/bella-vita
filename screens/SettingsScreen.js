@@ -2,8 +2,8 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 import { useContext } from "react";
 import { AuthContext } from "../context/auth-context";
-import MyButton from "../components/MyButton";
 import Colors from "../constants/colors";
+import MyButton from "../components/MyButton";
 
 function SettingsScreen({ navigation }) {
   const authCtx = useContext(AuthContext);
