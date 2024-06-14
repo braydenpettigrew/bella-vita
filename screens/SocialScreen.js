@@ -1,46 +1,86 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 import Post from "../components/Post";
+import LoadingOverlay from "../components/LoadingOverlay";
 import MyButton from "../components/MyButton";
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { fetchPosts } from "../util/http";
 import Colors from "../constants/colors";
+import IconButton from "../components/IconButton";
 
 function SocialScreen({ navigation }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [postsExist, setPostsExist] = useState(true);
+  const [posts, setPosts] = useState([]);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const postsData = await fetchPosts(authCtx.token);
+      if (postsData === null) {
+        setPostsExist(false);
+        setIsLoaded(true);
+        return;
+      }
+      const postsArray = Object.values(postsData).reverse();
+      setPosts(postsArray);
+      setPostsExist(true);
+    } catch (error) {
+      console.log("Social Screen Error: ", error);
+    }
+    setIsLoaded(true);
+  }, [authCtx.token]);
+
   useFocusEffect(
     useCallback(() => {
-      async function fetchData() {
-        try {
-          const posts = await fetchPosts(authCtx.token);
-          const postsArray = Object.values(posts).reverse();
-          setPosts(postsArray);
-        } catch (error) {
-          console.log("Social Screen Error: ", error);
-        }
-      }
-
       fetchData();
-    }, [navigation, authCtx.token])
+    }, [fetchData])
   );
 
-  const [posts, setPosts] = useState([]);
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: ({ tintColor }) => (
+        <View
+          style={{
+            position: "absolute",
+            left: -12,
+          }}
+        >
+          <IconButton
+            icon="refresh"
+            size={24}
+            color={tintColor}
+            onPress={fetchData}
+          />
+        </View>
+      ),
+    });
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Title>Bella Vita Media</Title>
       </View>
-      <ScrollView style={styles.scrollView}>
-        {posts.map((item, index) => (
-          <Post
-            key={index}
-            userName={item.user}
-            image={item.image}
-            caption={item.caption}
-            timestamp={item.timestamp}
-          />
-        ))}
-      </ScrollView>
+      {isLoaded ? ( // Conditional rendering based on isLoaded state
+        postsExist ? (
+          <ScrollView style={styles.scrollView}>
+            {posts.map((item, index) => (
+              <Post
+                key={index}
+                userName={item.user}
+                image={item.image}
+                caption={item.caption}
+                timestamp={item.timestamp}
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          <Text style={styles.noPostsText}>There are no posts available.</Text>
+        )
+      ) : (
+        <LoadingOverlay />
+      )}
       <View style={styles.makePostContainer}>
         <MyButton
           style={{ width: "50%" }}
@@ -80,5 +120,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
     width: "100%",
+  },
+  noPostsText: {
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });

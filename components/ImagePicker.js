@@ -1,12 +1,14 @@
-import { Alert, Image, Text, View, StyleSheet } from "react-native";
+import { Alert, Image, Text, View, StyleSheet, Pressable } from "react-native";
 import {
   launchCameraAsync,
   useCameraPermissions,
   PermissionStatus,
+  launchImageLibraryAsync,
 } from "expo-image-picker";
 import { useState } from "react";
 import IconButton from "./IconButton";
 import Colors from "../constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 function ImagePicker({ onImageTaken }) {
   const [pickedImage, setPickedImage] = useState();
@@ -44,9 +46,30 @@ function ImagePicker({ onImageTaken }) {
       quality: 0.5,
       base64: true,
     });
-    // console.log(image.assets[0].base64);
+
     setPickedImage(image.assets[0].base64);
     onImageTaken(image.assets[0].base64);
+  }
+
+  async function pickImageFromLibraryHandler() {
+    const hasPermission = await verifyPermissions();
+
+    if (!hasPermission) {
+      return;
+    }
+
+    const image = await launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.5,
+      base64: true,
+    });
+
+    if (!image.cancelled) {
+      // Check if the user cancelled the action
+      setPickedImage(image.assets[0].base64);
+      onImageTaken(image.assets[0].base64);
+    }
   }
 
   let imagePreview = <Text>No image taken yet.</Text>;
@@ -63,12 +86,19 @@ function ImagePicker({ onImageTaken }) {
   return (
     <View style={styles.container}>
       <View style={styles.imagePreview}>{imagePreview}</View>
-      <IconButton
-        icon="camera-outline"
-        color={Colors.primaryBlue}
-        size={24}
-        onPress={takeImageHandler}
-      />
+      <View style={styles.buttonsContainer}>
+        <Pressable style={styles.buttonContainer} onPress={takeImageHandler}>
+          <Text style={styles.buttonText}>Capture</Text>
+          <Ionicons name="camera-outline" color={"white"} size={24} />
+        </Pressable>
+        <Pressable
+          style={styles.buttonContainer}
+          onPress={pickImageFromLibraryHandler}
+        >
+          <Text style={styles.buttonText}>Gallery</Text>
+          <Ionicons name="image-outline" color={"white"} size={24} />
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -79,6 +109,25 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 16,
     alignItems: "center",
+  },
+  buttonsContainer: {
+    flexDirection: "row",
+    margin: 16,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    marginHorizontal: 12,
+    padding: 12,
+    backgroundColor: Colors.primaryBlue,
+    borderRadius: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "white",
   },
   imagePreview: {
     width: 300,
