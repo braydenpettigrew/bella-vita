@@ -19,12 +19,15 @@ import { AuthContext } from "./context/auth-context";
 import { useEffect } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
-import { Alert, Pressable, Text } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { initializeApp } from "./util/auth";
 import * as Notifications from "expo-notifications";
 import { pushTokenExists, storePushToken } from "./util/http";
 import ChangeNameScreen from "./screens/ChangeNameScreen";
 import LoadingOverlay from "./components/LoadingOverlay";
+import SocialScreen from "./screens/SocialScreen";
+import IconButton from "./components/IconButton";
+import MakePostScreen from "./screens/MakePostScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -122,15 +125,17 @@ function AuthenticatedStack() {
             title: "Points",
           }}
         />
-        {/* <Tab.Screen
-          name="Home"
-          component={HomeScreen}
+        <Tab.Screen
+          name="SocialStack"
+          component={SocialStack}
           options={{
+            headerShown: false,
+            title: "Social",
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="home" color={color} size={size} />
+              <Ionicons name="camera-outline" color={color} size={size} />
             ),
           }}
-        /> */}
+        />
         <Tab.Screen
           name="SettingsStack"
           component={SettingsStack}
@@ -183,6 +188,30 @@ function TrackerStack() {
           presentation: "fullScreenModal",
           title: "History",
         }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function SocialStack() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: Colors.primaryBlue },
+        headerTintColor: "white",
+      }}
+    >
+      <Stack.Screen
+        name="Social"
+        component={SocialScreen}
+        options={{
+          title: "Social",
+        }}
+      />
+      <Stack.Screen
+        name="MakePost"
+        component={MakePostScreen}
+        options={{ title: "Create Post" }}
       />
     </Stack.Navigator>
   );

@@ -31,6 +31,14 @@
         "projectId": "1665e483-bcfa-4038-8648-d69ae25d7e5d"
       }
     },
-    "owner": "braydenpettigrew"
+    "owner": "braydenpettigrew",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "The app needs access to your camera in order to take photos."
+        }
+      ]
+    ]
   }
 }

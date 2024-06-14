@@ -95,7 +95,7 @@ export async function pushTokenExists(pushToken, auth) {
     }
     return false;
   } catch (error) {
-    console.log("Error: ", error);
+    console.log("http1 Error: ", error);
     return error;
   }
 }
@@ -118,7 +118,20 @@ export async function getAllPushTokens(auth) {
 
     return pushTokens;
   } catch (error) {
-    console.log("Error: ", error);
+    console.log("http2 Error: ", error);
     return error;
   }
+}
+
+export async function storePost(post, auth) {
+  let response = await axios.post(
+    `${BACKEND_URL}/posts.json?auth=${auth}`,
+    post
+  );
+  return response;
+}
+
+export async function fetchPosts(auth) {
+  const response = await axios.get(`${BACKEND_URL}/posts.json?auth=${auth}`);
+  return response.data;
 }
