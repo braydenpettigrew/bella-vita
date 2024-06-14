@@ -38,6 +38,38 @@ export async function fetchHistory(auth) {
   return response.data;
 }
 
+export async function deleteHistory(timestamp, auth) {
+  try {
+    // Fetching the history entries
+    const response = await axios.get(
+      BACKEND_URL + "/history.json?auth=" + auth
+    );
+    const historyEntries = response.data;
+
+    // Finding the entry with the matching timestamp
+    let entryToDelete = null;
+    for (const key in historyEntries) {
+      if (historyEntries[key].timestamp === timestamp) {
+        entryToDelete = key;
+        break;
+      }
+    }
+
+    // If entry found, delete it
+    if (entryToDelete) {
+      const deleteResponse = await axios.delete(
+        BACKEND_URL + `/history/${entryToDelete}.json?auth=${auth}`
+      );
+      return deleteResponse;
+    } else {
+      throw new Error("Entry with specified timestamp not found");
+    }
+  } catch (error) {
+    console.error("Error deleting history:", error);
+    throw error;
+  }
+}
+
 export async function storePushToken(pushToken, auth) {
   const response = await axios.post(
     `${BACKEND_URL}/pushtokens.json?auth=${auth}`,

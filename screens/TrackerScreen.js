@@ -56,6 +56,16 @@ function TrackerScreen({ navigation }) {
     }
   }
 
+  // Define a function to update history when deleted
+  function handleDeleteHistory(timestamp) {
+    // Filter out the deleted history item
+    const updatedHistory = history.filter(
+      (item) => item.timestamp !== timestamp
+    );
+    // Update the state
+    setHistory(updatedHistory);
+  }
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: ({ tintColor }) => (
@@ -125,7 +135,9 @@ function TrackerScreen({ navigation }) {
         </View>
         <Title>Recent History</Title>
         {history.slice(0, 10).map((item, index) => (
-          <HistoryEntry key={index}>{item}</HistoryEntry>
+          <HistoryEntry key={index} onDeleteHistory={handleDeleteHistory}>
+            {item}
+          </HistoryEntry>
         ))}
         <MyButton
           style={styles.historyButton}
