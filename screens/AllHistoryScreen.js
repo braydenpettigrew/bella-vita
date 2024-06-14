@@ -39,7 +39,7 @@ function AllHistoryScreen({ navigation }) {
           setHistory(historyArray);
           setIsLoaded(true);
         } catch (error) {
-          console.log("Error: ", error);
+          console.log("All History Screen Error: ", error);
         }
       }
 

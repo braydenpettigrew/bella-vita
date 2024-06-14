@@ -97,7 +97,7 @@ function TrackerScreen({ navigation }) {
           setHistory(historyArray);
           setIsLoaded(true);
         } catch (error) {
-          console.log("Error: ", error);
+          console.log("Tracker Screen Error: ", error);
         }
       }
 
