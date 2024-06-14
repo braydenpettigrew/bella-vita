@@ -1,7 +1,15 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import Colors from "../constants/colors";
+import { deleteHistory } from "../util/http";
+import IconButton from "./IconButton";
+import { useContext } from "react";
+import { AuthContext } from "../context/auth-context";
+import { useNavigation } from "@react-navigation/native";
 
-function HistoryEntry({ children }) {
+function HistoryEntry({ children, onDeleteHistory }) {
+  const authCtx = useContext(AuthContext);
+  const navigation = useNavigation();
+
   function makeTimestamp(timestamp) {
     const date = new Date(timestamp);
 
@@ -18,29 +26,81 @@ function HistoryEntry({ children }) {
     return formattedDate;
   }
 
+  // Function that alerts the user and deletes the history entry on confirmation
+  function deleteEntry() {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this history entry? It will be deleted forever.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            deleteHistory(children.timestamp, authCtx.token);
+            onDeleteHistory(children.timestamp);
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  }
+
   let item = <Text></Text>;
   if (children.pointsAdded) {
     item = (
-      <View style={styles.entryContainer}>
-        <Text style={styles.text}>
-          {children.user} added {children.pointsAdded} point(s){"\n"}Reason:{" "}
-          {children.reason}
-        </Text>
-        <View style={styles.timestampContainer}>
-          <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
+      <View style={styles.deleteContainer}>
+        <View
+          style={[
+            styles.entryContainer,
+            authCtx.email === "brayden@thepettigrews.org" && { flex: 1 },
+          ]}
+        >
+          <Text style={styles.text}>
+            {children.user} added {children.pointsAdded} point(s){"\n"}Reason:{" "}
+            {children.reason}
+          </Text>
+          <View style={styles.timestampContainer}>
+            <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
+          </View>
         </View>
+        {authCtx.email === "brayden@thepettigrews.org" && (
+          <IconButton
+            icon="trash-outline"
+            size={24}
+            color={Colors.primaryRed}
+            onPress={deleteEntry}
+          />
+        )}
       </View>
     );
   } else {
     item = (
-      <View style={styles.entryContainer}>
-        <Text style={styles.text}>
-          {children.user} removed {children.pointsRemoved} point(s){"\n"}Reason:{" "}
-          {children.reason}
-        </Text>
-        <View style={styles.timestampContainer}>
-          <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
+      <View style={styles.deleteContainer}>
+        <View
+          style={[
+            styles.entryContainer,
+            authCtx.email === "brayden@thepettigrews.org" && { flex: 1 },
+          ]}
+        >
+          <Text style={styles.text}>
+            {children.user} removed {children.pointsRemoved} point(s){"\n"}
+            Reason: {children.reason}
+          </Text>
+          <View style={styles.timestampContainer}>
+            <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
+          </View>
         </View>
+        {authCtx.email === "brayden@thepettigrews.org" && (
+          <IconButton
+            icon="trash-outline"
+            size={24}
+            color={Colors.primaryRed}
+            onPress={deleteEntry}
+          />
+        )}
       </View>
     );
   }
@@ -67,6 +127,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 3,
   },
+  deleteContainer: {
+    flexDirection: "row",
+  },
   entryContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -81,5 +144,13 @@ const styles = StyleSheet.create({
     padding: 8,
     color: Colors.primaryDarkBlue,
     fontSize: 16,
+  },
+  imageButtons: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
   },
 });
