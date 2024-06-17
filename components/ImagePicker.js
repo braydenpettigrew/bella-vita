@@ -6,12 +6,11 @@ import {
   launchImageLibraryAsync,
 } from "expo-image-picker";
 import { useState } from "react";
-import IconButton from "./IconButton";
 import Colors from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 
 function ImagePicker({ onImageTaken }) {
-  const [pickedImage, setPickedImage] = useState();
+  const [pickedImage, setPickedImage] = useState("");
   const [cameraPermissionInformation, requestPermission] =
     useCameraPermissions();
 
@@ -47,8 +46,8 @@ function ImagePicker({ onImageTaken }) {
       base64: true,
     });
 
-    setPickedImage(image.assets[0].base64);
-    onImageTaken(image.assets[0].base64);
+    setPickedImage(image.assets[0].uri);
+    onImageTaken(image.assets[0].uri);
   }
 
   async function pickImageFromLibraryHandler() {
@@ -62,25 +61,19 @@ function ImagePicker({ onImageTaken }) {
       allowsEditing: true,
       aspect: [16, 9],
       quality: 0.5,
-      base64: true,
     });
 
     if (!image.cancelled) {
       // Check if the user cancelled the action
-      setPickedImage(image.assets[0].base64);
-      onImageTaken(image.assets[0].base64);
+      setPickedImage(image.assets[0].uri);
+      onImageTaken(image.assets[0].uri);
     }
   }
 
   let imagePreview = <Text>No image taken yet.</Text>;
 
   if (pickedImage) {
-    imagePreview = (
-      <Image
-        style={styles.image}
-        source={{ uri: `data:image/jpeg;base64,${pickedImage}` }}
-      />
-    );
+    imagePreview = <Image style={styles.image} source={{ uri: pickedImage }} />;
   }
 
   return (
