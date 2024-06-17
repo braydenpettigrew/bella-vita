@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.braydenpettigrew.bellavita",
-      "buildNumber": "15"
+      "buildNumber": "16"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +29,15 @@
     "extra": {
       "eas": {
         "projectId": "1665e483-bcfa-4038-8648-d69ae25d7e5d"
-      }
+      },
+      "API_KEY": "@env.API_KEY",
+      "AUTH_DOMAIN": "@env.AUTH_DOMAIN",
+      "DATABASE_URL": "@env.DATABASE_URL",
+      "PROJECT_ID": "@env.PROJECT_ID",
+      "STORAGE_BUCKET": "@env.STORAGE_BUCKET",
+      "MESSAGING_SENDER_ID": "@env.MESSAGING_SENDER_ID",
+      "APP_ID": "@env.APP_ID",
+      "BACKEND_URL": "@env.BACKEND_URL"
     },
     "owner": "braydenpettigrew",
     "plugins": [
