@@ -1,5 +1,6 @@
 import axios from "axios";
-import { BACKEND_URL } from "@env";
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export async function storePoints(points, auth) {
   let response = await axios.post(
