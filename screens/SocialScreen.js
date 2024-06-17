@@ -3,59 +3,92 @@ import Title from "../components/Title";
 import Post from "../components/Post";
 import LoadingOverlay from "../components/LoadingOverlay";
 import MyButton from "../components/MyButton";
-import { useCallback, useLayoutEffect, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import { fetchPosts } from "../util/http";
+import { useEffect, useState } from "react";
 import Colors from "../constants/colors";
-import IconButton from "../components/IconButton";
+import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function SocialScreen({ navigation }) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [postsExist, setPostsExist] = useState(true);
   const [posts, setPosts] = useState([]);
 
-  const fetchData = useCallback(async () => {
-    try {
-      const postsData = await fetchPosts(authCtx.token);
-      if (postsData === null) {
-        setPostsExist(false);
-        setIsLoaded(true);
-        return;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Check if data is available in AsyncStorage
+        const cachedData = await AsyncStorage.getItem("posts");
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+
+          // Get the latest timestamp from Firestore
+          const latestTimestamp = await getLatestTimestamp();
+
+          // If cached data is up-to-date, use it
+          if (timestamp === latestTimestamp) {
+            console.log("CACHED", latestTimestamp);
+            setPosts(data);
+            setIsLoaded(true);
+          } else {
+            // If cached data is outdated, fetch the latest data from Firestore
+            console.log("NOT CACHED");
+            fetchLatestDataFromFirestore();
+          }
+        } else {
+          // If no cached data is available, fetch the latest data from Firestore
+          fetchLatestDataFromFirestore();
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-      const postsArray = Object.values(postsData).reverse();
-      setPosts(postsArray);
-      setPostsExist(true);
-    } catch (error) {
-      console.log("Social Screen Error: ", error);
-    }
-    setIsLoaded(true);
-  }, [authCtx.token]);
+    };
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchData();
-    }, [fetchData])
-  );
+    const fetchLatestDataFromFirestore = async () => {
+      const latestTimestamp = await getLatestTimestamp();
+      const unsubscribe = onSnapshot(collection(db, "files"), (snapshot) => {
+        const updatedPosts = [];
+        // Get the latest timestamp from Firestore
+        // const updatedTimestamp = new Date().getTime(); // Get the current timestamp
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: ({ tintColor }) => (
-        <View
-          style={{
-            position: "absolute",
-            left: -12,
-          }}
-        >
-          <IconButton
-            icon="refresh"
-            size={24}
-            color={tintColor}
-            onPress={fetchData}
-          />
-        </View>
-      ),
-    });
-  }, [navigation]);
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            updatedPosts.push(change.doc.data());
+            setPosts((prevPosts) => [...prevPosts, change.doc.data()]);
+          }
+        });
+
+        setIsLoaded(true);
+
+        // Store the fetched data and timestamp in AsyncStorage
+        AsyncStorage.setItem(
+          "posts",
+          JSON.stringify({ data: updatedPosts, timestamp: latestTimestamp })
+        );
+      });
+
+      return () => unsubscribe();
+    };
+
+    const getLatestTimestamp = async () => {
+      try {
+        const metadataDocRef = doc(db, "metadata", "latest");
+        const metadataDocSnapshot = await getDoc(metadataDocRef);
+
+        if (metadataDocSnapshot.exists()) {
+          const latestTimestamp = metadataDocSnapshot.data().timestamp;
+          return latestTimestamp;
+        } else {
+          console.error("No metadata document found in Firestore.");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error fetching latest timestamp:", error);
+        return null;
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -63,17 +96,20 @@ function SocialScreen({ navigation }) {
         <Title>Bella Vita Media</Title>
       </View>
       {isLoaded ? ( // Conditional rendering based on isLoaded state
-        postsExist ? (
+        posts.length > 0 ? (
           <ScrollView style={styles.scrollView}>
-            {posts.map((item, index) => (
-              <Post
-                key={index}
-                userName={item.user}
-                image={item.image}
-                caption={item.caption}
-                timestamp={item.timestamp}
-              />
-            ))}
+            {posts
+              .slice() // Create a copy of the posts array
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort the copy in descending order based on the createdAt timestamp
+              .map((item, index) => (
+                <Post
+                  key={index}
+                  userName={item.user}
+                  image={item.url}
+                  caption={item.caption}
+                  timestamp={item.createdAt}
+                />
+              ))}
           </ScrollView>
         ) : (
           <Text style={styles.noPostsText}>There are no posts available.</Text>

@@ -25,10 +25,7 @@ function Post({ userName, image, caption, timestamp }) {
         <Text>{makeTimestamp(timestamp)}</Text>
       </View>
       <View style={styles.imageContainer}>
-        <Image
-          style={styles.image}
-          source={{ uri: `data:image/jpeg;base64,${image}` }}
-        />
+        <Image style={styles.image} source={{ uri: image }} />
       </View>
       <View style={styles.captionContainer}>
         <Text style={styles.captionText}>{caption}</Text>

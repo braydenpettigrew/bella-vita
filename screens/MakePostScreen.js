@@ -1,23 +1,35 @@
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import Input from "../components/Input";
 import ImagePicker from "../components/ImagePicker";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/auth-context";
 import MyButton from "../components/MyButton";
-import { storePost } from "../util/http";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { doc, setDoc, addDoc, collection } from "firebase/firestore";
+import { db, storage } from "../firebaseConfig";
 
 function MakePostScreen({ navigation }) {
-  const [image, setImage] = useState(null);
+  const [uri, setUri] = useState(null);
   const [caption, setCaption] = useState("");
   const [isPostButtonDisabled, setIsPostButtonDisabled] = useState(false);
   const authCtx = useContext(AuthContext);
 
-  function onImageTaken(image) {
-    setImage(image);
+  function onImageTaken(uri) {
+    setUri(uri);
   }
 
+  // Updates the latest timestamp in the metadata/latest folder of the database
+  const updateLatestTimestamp = async (datetime) => {
+    try {
+      const metadataDocRef = doc(db, "metadata", "latest");
+      await setDoc(metadataDocRef, { timestamp: datetime }, { merge: true });
+    } catch (error) {
+      console.error("Error updating latest timestamp:", error);
+    }
+  };
+
   async function onPostPressed() {
-    if (image === null) {
+    if (uri === null) {
       Alert.alert("No Image Provided", "Please provide an image to post.");
       return;
     }
@@ -29,16 +41,56 @@ function MakePostScreen({ navigation }) {
       return;
     }
     setIsPostButtonDisabled(true);
-    storePost(
-      {
-        caption: caption,
-        user: authCtx.name,
-        image: image,
-        timestamp: Date.now(),
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    // Upload image to firebase storage
+    const storageRef = ref(storage, "Images/" + new Date().getTime());
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    // Listen for events
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       },
-      authCtx.token
+      (error) => {
+        // handle error
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          // save record
+          const datetime = new Date().toISOString();
+          await saveRecord(
+            "image",
+            downloadURL,
+            datetime,
+            authCtx.name,
+            caption
+          );
+          await updateLatestTimestamp(datetime);
+        });
+      }
     );
+
+    setIsPostButtonDisabled(false);
     navigation.navigate("Social");
+  }
+
+  async function saveRecord(fileType, url, createdAt, user, caption) {
+    try {
+      const docRef = await addDoc(collection(db, "files"), {
+        fileType,
+        url,
+        createdAt,
+        user,
+        caption,
+      });
+    } catch (e) {
+      console.log("MakePostScreen Error: ", e);
+    }
   }
 
   return (
