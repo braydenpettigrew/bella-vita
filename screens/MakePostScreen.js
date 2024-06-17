@@ -7,6 +7,7 @@ import MyButton from "../components/MyButton";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, addDoc, collection } from "firebase/firestore";
 import { db, storage } from "../firebaseConfig";
+import { getAllPushTokens } from "../util/http";
 
 function MakePostScreen({ navigation }) {
   const [uri, setUri] = useState(null);
@@ -16,6 +17,22 @@ function MakePostScreen({ navigation }) {
 
   function onImageTaken(uri) {
     setUri(uri);
+  }
+
+  async function sendPushNotificationHandler() {
+    const pushTokensArray = await getAllPushTokens(authCtx.token);
+
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        to: pushTokensArray,
+        title: `${authCtx.name} posted an image!`,
+        body: "Open the Bella Vita app to view the image.",
+      }),
+    });
   }
 
   // Updates the latest timestamp in the metadata/latest folder of the database
@@ -76,6 +93,10 @@ function MakePostScreen({ navigation }) {
     );
 
     setIsPostButtonDisabled(false);
+
+    // Send notification to others
+    sendPushNotificationHandler();
+
     navigation.navigate("Social");
   }
 
