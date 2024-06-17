@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const BACKEND_URL = "https://bellavita-7a30f-default-rtdb.firebaseio.com/";
+import { BACKEND_URL } from "@env";
 
 export async function storePoints(points, auth) {
   let response = await axios.post(
