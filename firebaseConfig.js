@@ -1,15 +1,24 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
+import {
+  API_KEY,
+  AUTH_DOMAIN,
+  DATABASE_URL,
+  PROJECT_ID,
+  STORAGE_BUCKET,
+  MESSAGING_SENDER_ID,
+  APP_ID,
+} from "@env";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB73AZKXMGzg8oLSEoEMhXlcvkOjAjBtZQ",
-  authDomain: "bellavita-7a30f.firebaseapp.com",
-  databaseURL: "https://bellavita-7a30f-default-rtdb.firebaseio.com",
-  projectId: "bellavita-7a30f",
-  storageBucket: "bellavita-7a30f.appspot.com",
-  messagingSenderId: "533891626769",
-  appId: "1:533891626769:web:d1cd9e6d26db180a87beb0",
+  apiKey: API_KEY,
+  authDomain: AUTH_DOMAIN,
+  databaseURL: DATABASE_URL,
+  projectId: PROJECT_ID,
+  storageBucket: STORAGE_BUCKET,
+  messagingSenderId: MESSAGING_SENDER_ID,
+  appId: APP_ID,
 };
 
 // Initialize Firebase
