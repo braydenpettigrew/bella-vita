@@ -26,12 +26,10 @@ function SocialScreen({ navigation }) {
 
           // If cached data is up-to-date, use it
           if (timestamp === latestTimestamp) {
-            console.log("CACHED", latestTimestamp);
             setPosts(data);
             setIsLoaded(true);
           } else {
             // If cached data is outdated, fetch the latest data from Firestore
-            console.log("NOT CACHED");
             fetchLatestDataFromFirestore();
           }
         } else {

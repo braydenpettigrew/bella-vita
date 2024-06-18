@@ -89,6 +89,7 @@ function TrackerScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       async function fetchData() {
+        await fetchToken();
         try {
           const points = await fetchPoints(authCtx.token);
           const history = await fetchHistory(authCtx.token);
