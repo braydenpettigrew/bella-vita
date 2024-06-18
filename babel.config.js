@@ -10,6 +10,7 @@ module.exports = function (api) {
           path: ".env",
         },
       ],
+      ['transform-inline-environment-variables']
     ],
   };
 };
