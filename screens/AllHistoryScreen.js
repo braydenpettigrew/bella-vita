@@ -20,6 +20,16 @@ function AllHistoryScreen({ navigation }) {
   const [history, setHistory] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Define a function to update history when deleted
+  function handleDeleteHistory(timestamp) {
+    // Filter out the deleted history item
+    const updatedHistory = history.filter(
+      (item) => item.timestamp !== timestamp
+    );
+    // Update the state
+    setHistory(updatedHistory);
+  }
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: ({ tintColor }) => (
@@ -52,7 +62,7 @@ function AllHistoryScreen({ navigation }) {
       <View style={styles.container}>
         <Title>All History</Title>
         {history.map((item, index) => (
-          <HistoryEntry key={index}>{item}</HistoryEntry>
+          <HistoryEntry key={index} onDeleteHistory={handleDeleteHistory}>{item}</HistoryEntry>
         ))}
       </View>
     </ScrollView>
