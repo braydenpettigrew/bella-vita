@@ -8,6 +8,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, addDoc, collection } from "firebase/firestore";
 import { db, storage } from "../firebaseConfig";
 import { getAllPushTokens } from "../util/http";
+import { getAuth } from "firebase/auth";
 
 function MakePostScreen({ navigation }) {
   const [uri, setUri] = useState(null);
@@ -58,6 +59,16 @@ function MakePostScreen({ navigation }) {
       return;
     }
     setIsPostButtonDisabled(true);
+
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    console.log("USER: ", user);
+
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
+    }
 
     const response = await fetch(uri);
     const blob = await response.blob();
