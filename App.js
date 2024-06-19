@@ -4,30 +4,25 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "./constants/colors";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import HomeScreen from "./screens/HomeScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import TrackerScreen from "./screens/TrackerScreen";
 import AddPointsScreen from "./screens/AddPointsScreen";
 import AllHistoryScreen from "./screens/AllHistoryScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RemovePointsScreen from "./screens/RemovePointsScreen";
-import AuthContextProvider from "./context/auth-context";
-import { useContext } from "react";
-import { AuthContext } from "./context/auth-context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
-import { Alert, Pressable, Text, View } from "react-native";
-import { initializeApp } from "./util/auth";
+import { Alert, Pressable, Text } from "react-native";
 import * as Notifications from "expo-notifications";
 import { pushTokenExists, storePushToken } from "./util/http";
 import ChangeNameScreen from "./screens/ChangeNameScreen";
 import LoadingOverlay from "./components/LoadingOverlay";
 import SocialScreen from "./screens/SocialScreen";
-import IconButton from "./components/IconButton";
 import MakePostScreen from "./screens/MakePostScreen";
+import { onAuthStateChanged } from "firebase/auth";
+import { FIREBASE_AUTH } from "./firebaseConfig";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,7 +43,9 @@ function AuthStack() {
 }
 
 function AuthenticatedStack() {
-  authCtx = useContext(AuthContext);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   useEffect(() => {
     async function configurePushNotifications() {
@@ -82,7 +79,7 @@ function AuthenticatedStack() {
       // Check if the push token has already been stored in the backend
       try {
         // res will be equal to true or false
-        const res = await pushTokenExists(pushToken, authCtx.token);
+        const res = await pushTokenExists(pushToken, token);
 
         if (res) {
           return;
@@ -94,7 +91,7 @@ function AuthenticatedStack() {
 
       // If the push token doesn't exist on the backend, proceed to store it
       try {
-        await storePushToken({ pushToken: pushToken }, authCtx.token);
+        await storePushToken({ pushToken: pushToken }, token);
       } catch (error) {
         console.error("Error storing push token on Firebase backend: ", error);
       }
@@ -232,7 +229,7 @@ function SettingsStack() {
           style: "destructive",
           onPress: () => {
             // User confirmed deletion, delete the tracker
-            authCtx.logout();
+            FIREBASE_AUTH.signOut();
           },
         },
       ],
@@ -268,63 +265,25 @@ function SettingsStack() {
   );
 }
 
-function Navigation({ isAuthenticated }) {
-  return (
-    <NavigationContainer>
-      {!isAuthenticated && <AuthStack />}
-      {isAuthenticated && <AuthenticatedStack />}
-    </NavigationContainer>
-  );
-}
-
-function Root() {
-  const authCtx = useContext(AuthContext);
-
-  useEffect(() => {
-    async function fetchToken() {
-      let storedToken = await AsyncStorage.getItem("token");
-      let storedRefreshToken = await AsyncStorage.getItem("refreshToken");
-
-      if (storedToken) {
-        await initializeApp();
-        storedToken = await AsyncStorage.getItem("token");
-        storedRefreshToken = await AsyncStorage.getItem("refreshToken");
-        authCtx.authenticate(storedToken, storedRefreshToken);
-      }
-    }
-
-    fetchToken();
-  }, []);
-
-  // Get the name and email of the user
-  useEffect(() => {
-    async function getNameAndEmail() {
-      let userName = await AsyncStorage.getItem("name");
-      let userEmail = await AsyncStorage.getItem("email");
-
-      if (userName) {
-        authCtx.changeName(userName);
-        authCtx.setUserEmail(userEmail);
-      }
-    }
-
-    getNameAndEmail();
-  }, []);
-
-  return authCtx.isAuthenticated === null ? (
-    <LoadingOverlay />
-  ) : (
-    <Navigation isAuthenticated={authCtx.isAuthenticated} />
-  );
-}
-
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    onAuthStateChanged(FIREBASE_AUTH, (user) => {
+      setUser(user);
+      setIsLoading(false);
+    });
+  }, []);
+
   return (
     <>
       <StatusBar style="light" />
-      <AuthContextProvider>
-        <Root />
-      </AuthContextProvider>
+      <NavigationContainer>
+        {isLoading && <LoadingOverlay />}
+        {user === null && <AuthStack />}
+        {user && <AuthenticatedStack />}
+      </NavigationContainer>
     </>
   );
 }

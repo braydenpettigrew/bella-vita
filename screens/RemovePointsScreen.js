@@ -5,8 +5,7 @@ import MyButton from "../components/MyButton";
 import { getAllPushTokens, storeHistory, updatePoints } from "../util/http";
 import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
-import { useContext } from "react";
-import { AuthContext } from "../context/auth-context";
+import { FIREBASE_AUTH } from "../firebaseConfig";
 
 function AddPointsScreen({ navigation, route }) {
   const [enteredPoints, setEnteredPoints] = useState(0);
@@ -16,7 +15,9 @@ function AddPointsScreen({ navigation, route }) {
   const [userInvalid, setUserInvalid] = useState(false);
   const [reasonInvalid, setReasonInvalid] = useState(false);
   const [errorVisible, setErrorVisible] = useState(false);
-  const authCtx = useContext(AuthContext);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -29,7 +30,7 @@ function AddPointsScreen({ navigation, route }) {
   }, [navigation]);
 
   async function sendPushNotificationHandler() {
-    const pushTokensArray = await getAllPushTokens(authCtx.token);
+    const pushTokensArray = await getAllPushTokens(token);
 
     await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
@@ -51,13 +52,13 @@ function AddPointsScreen({ navigation, route }) {
 
     if (
       parseInt(enteredPoints) === 0 ||
-      (!authCtx.name && enteredUser === "") ||
+      (!user.displayName && enteredUser === "") ||
       enteredReason === ""
     ) {
       if (parseInt(enteredPoints) === 0) {
         setPointsInvalid(true);
       }
-      if (!authCtx.name && enteredUser === "") {
+      if (!user.displayName && enteredUser === "") {
         setUserInvalid(true);
       }
       if (enteredReason === "") {
@@ -67,15 +68,15 @@ function AddPointsScreen({ navigation, route }) {
       setErrorVisible(true);
       return;
     }
-    updatePoints(route.params.points - parseInt(enteredPoints), authCtx.token);
+    updatePoints(route.params.points - parseInt(enteredPoints), token);
     storeHistory(
       {
         pointsRemoved: enteredPoints,
-        user: authCtx.name ? authCtx.name : enteredUser.trim(),
+        user: user.displayName ? user.displayName : enteredUser.trim(),
         reason: enteredReason.trim(),
         timestamp: Date.now(),
       },
-      authCtx.token
+      token
     );
 
     // Send notifications to other users that points were removed.
@@ -86,15 +87,15 @@ function AddPointsScreen({ navigation, route }) {
 
   // Quick add only works if the user has set a name in settings.
   function quickRemovePressHandler(points, reason) {
-    updatePoints(route.params.points - points, authCtx.token);
+    updatePoints(route.params.points - points, token);
     storeHistory(
       {
         pointsRemoved: points,
-        user: authCtx.name,
+        user: user.displayName,
         reason: reason,
         timestamp: Date.now(),
       },
-      authCtx.token
+      token
     );
 
     // Send notifications to other users that points were added.
@@ -112,7 +113,7 @@ function AddPointsScreen({ navigation, route }) {
         <Text style={styles.subtitleText}>Custom Remove</Text>
       </View>
       <View style={styles.container}>
-        {!authCtx.name && (
+        {!user.displayName && (
           <Input
             label="Who is removing these points? (Set your name in settings to avoid this field!)"
             invalid={userInvalid}
@@ -157,7 +158,7 @@ function AddPointsScreen({ navigation, route }) {
       <View style={styles.subtitleContainer}>
         <Text style={styles.subtitleText}>Quick Remove</Text>
       </View>
-      {authCtx.name ? (
+      {user.displayName ? (
         <>
           <View style={styles.quickRemoveContainer}>
             <Text style={styles.quickRemoveText}>Cursing (-1) </Text>

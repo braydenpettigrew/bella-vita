@@ -1,20 +1,32 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { FIREBASE_AUTH } from "../firebaseConfig";
 
-const API_KEY = "AIzaSyB73AZKXMGzg8oLSEoEMhXlcvkOjAjBtZQ";
+const API_KEY = process.env.API_KEY;
+const auth = FIREBASE_AUTH;
 
 async function authenticate(mode, email, password) {
-  const url = `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=${API_KEY}`;
-  const response = await axios.post(url, {
-    email: email,
-    password: password,
-    returnSecureToken: true,
-  });
+  try {
+    let response;
+    if (mode === "signUp") {
+      response = await createUserWithEmailAndPassword(auth, email, password);
+    } else if (mode === "signInWithPassword") {
+      response = await signInWithEmailAndPassword(auth, email, password);
+    }
 
-  const uemail = response.data.email;
-  const token = response.data.idToken;
-  const refreshToken = response.data.refreshToken;
-  return [token, refreshToken, uemail];
+    const uemail = response.user.email;
+    const idToken = await response.user.getIdToken();
+    const refreshToken = response.user.refreshToken;
+
+    return [idToken, refreshToken, uemail];
+  } catch (error) {
+    console.error("Authentication error:", error.message);
+    throw error; // Propagate error for handling in UI or calling function
+  }
 }
 
 export function createUser(email, password) {

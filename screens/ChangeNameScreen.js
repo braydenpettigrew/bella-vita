@@ -1,16 +1,18 @@
 import { StyleSheet, Text, View } from "react-native";
-import { useContext, useState } from "react";
-import { AuthContext } from "../context/auth-context";
+import { useState } from "react";
 import Input from "../components/Input";
 import Colors from "../constants/colors";
 import MyButton from "../components/MyButton";
+import { FIREBASE_AUTH } from "../firebaseConfig";
+import { updateProfile } from "firebase/auth";
 
 function ChangeNameScreen({ navigation }) {
   const [name, setName] = useState("");
-  const authCtx = useContext(AuthContext);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
 
   function changeNamePressedHandler() {
-    authCtx.changeName(name);
+    updateProfile(user, { displayName: name });
     navigation.goBack();
   }
 

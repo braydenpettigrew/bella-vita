@@ -22,7 +22,9 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.braydenpettigrew.bellavita",
-      "permissions": ["android.permission.RECORD_AUDIO"]
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,6 +42,12 @@
           "cameraPermission": "The app needs access to your camera in order to take photos."
         }
       ]
-    ]
+    ],
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1665e483-bcfa-4038-8648-d69ae25d7e5d"
+    }
   }
 }
