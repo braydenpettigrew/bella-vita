@@ -266,11 +266,13 @@ function SettingsStack() {
 }
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
+
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log("user: ", user);
       setUser(user);
+      setIsLoading(false);
     });
   }, []);
 
@@ -278,6 +280,7 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <NavigationContainer>
+        {isLoading && <LoadingOverlay />}
         {user === null && <AuthStack />}
         {user && <AuthenticatedStack />}
       </NavigationContainer>

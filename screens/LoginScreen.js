@@ -13,7 +13,7 @@ function LoginScreen() {
     try {
       const tokens = await login(email, password);
     } catch (error) {
-      console.log(error);
+      console.log("Login Screen Error: ", error);
       Alert.alert(
         "Authentication failed!",
         "Could not log you in. Please check your credentials or try again later!"
