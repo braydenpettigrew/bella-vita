@@ -1,12 +1,11 @@
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import Input from "../components/Input";
 import ImagePicker from "../components/ImagePicker";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../context/auth-context";
+import { useState } from "react";
 import MyButton from "../components/MyButton";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, addDoc, collection } from "firebase/firestore";
-import { db, storage } from "../firebaseConfig";
+import { FIREBASE_AUTH, db, storage } from "../firebaseConfig";
 import { getAllPushTokens } from "../util/http";
 import { getAuth } from "firebase/auth";
 
@@ -14,14 +13,16 @@ function MakePostScreen({ navigation }) {
   const [uri, setUri] = useState(null);
   const [caption, setCaption] = useState("");
   const [isPostButtonDisabled, setIsPostButtonDisabled] = useState(false);
-  const authCtx = useContext(AuthContext);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   function onImageTaken(uri) {
     setUri(uri);
   }
 
   async function sendPushNotificationHandler() {
-    const pushTokensArray = await getAllPushTokens(authCtx.token);
+    const pushTokensArray = await getAllPushTokens(token);
 
     await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
@@ -30,7 +31,7 @@ function MakePostScreen({ navigation }) {
       },
       body: JSON.stringify({
         to: pushTokensArray,
-        title: `${authCtx.name} posted an image!`,
+        title: `${user.displayName} posted an image!`,
         body: "Open the Bella Vita app to view the image.",
       }),
     });
@@ -59,11 +60,6 @@ function MakePostScreen({ navigation }) {
       return;
     }
     setIsPostButtonDisabled(true);
-
-    const auth = getAuth();
-    const user = auth.currentUser;
-
-    console.log("USER: ", user);
 
     if (!user) {
       console.error("User is not authenticated");
@@ -95,7 +91,7 @@ function MakePostScreen({ navigation }) {
             "image",
             downloadURL,
             datetime,
-            authCtx.name,
+            user.displayName,
             caption
           );
           await updateLatestTimestamp(datetime);

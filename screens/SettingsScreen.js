@@ -1,12 +1,14 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
-import { useContext } from "react";
-import { AuthContext } from "../context/auth-context";
 import Colors from "../constants/colors";
 import MyButton from "../components/MyButton";
+import { FIREBASE_AUTH } from "../firebaseConfig";
+import React, { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 function SettingsScreen({ navigation }) {
-  const authCtx = useContext(AuthContext);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
 
   function changeNamePressedHandler() {
     navigation.navigate("ChangeName");
@@ -23,10 +25,10 @@ function SettingsScreen({ navigation }) {
         </View>
         <View>
           <View style={styles.nameSettingsContainer}>
-            <Text style={styles.settingsText}>Email: {authCtx.email}</Text>
+            <Text style={styles.settingsText}>Email: {user.email}</Text>
           </View>
           <View style={styles.nameSettingsContainer}>
-            <Text style={styles.settingsText}>Name: {authCtx.name}</Text>
+            <Text style={styles.settingsText}>Name: {user.displayName}</Text>
             <MyButton
               onPress={changeNamePressedHandler}
               buttonStyle={{ backgroundColor: Colors.primaryBlue }}

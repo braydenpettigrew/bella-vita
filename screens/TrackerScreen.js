@@ -4,21 +4,20 @@ import Title from "../components/Title";
 import IconButton from "../components/IconButton";
 import Colors from "../constants/colors";
 import { fetchHistory, fetchPoints } from "../util/http";
-import { useState, useCallback, useLayoutEffect, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import HistoryEntry from "../components/HistoryEntry";
-import { useContext } from "react";
-import { AuthContext } from "../context/auth-context";
 import MyButton from "../components/MyButton";
-import { initializeApp } from "../util/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { FIREBASE_AUTH } from "../firebaseConfig";
 
 function TrackerScreen({ navigation }) {
   const [points, setPoints] = useState(0);
   const [history, setHistory] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const authCtx = useContext(AuthContext);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   function addButtonPressedHandler() {
     navigation.navigate("AddPoints", { points });
@@ -32,29 +31,14 @@ function TrackerScreen({ navigation }) {
   useEffect(() => {
     setIsAdmin(false);
     if (
-      authCtx.email === "brayden@thepettigrews.org" ||
-      authCtx.email === "sarafezz41@yahoo.com" ||
-      authCtx.email === "mommsy1@yahoo.com" ||
-      authCtx.email === "fezzuoglio@yahoo.com"
+      user.email === "brayden@thepettigrews.org" ||
+      user.email === "sarafezz41@yahoo.com" ||
+      user.email === "mommsy1@yahoo.com" ||
+      user.email === "fezzuoglio@yahoo.com"
     ) {
       setIsAdmin(true);
     }
-  }, [authCtx]);
-
-  // Function to refresh token when user clicks refresh button
-  async function fetchToken() {
-    let storedToken = await AsyncStorage.getItem("token");
-    let storedRefreshToken = await AsyncStorage.getItem("refreshToken");
-
-    if (storedToken) {
-      setIsLoaded(false);
-      await initializeApp();
-      storedToken = await AsyncStorage.getItem("token");
-      storedRefreshToken = await AsyncStorage.getItem("refreshToken");
-      authCtx.authenticate(storedToken, storedRefreshToken);
-      setIsLoaded(true);
-    }
-  }
+  }, []);
 
   // Define a function to update history when deleted
   function handleDeleteHistory(timestamp) {
@@ -66,33 +50,12 @@ function TrackerScreen({ navigation }) {
     setHistory(updatedHistory);
   }
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: ({ tintColor }) => (
-        <View
-          style={{
-            position: "absolute",
-            left: -12,
-          }}
-        >
-          <IconButton
-            icon="refresh"
-            size={24}
-            color={tintColor}
-            onPress={fetchToken}
-          />
-        </View>
-      ),
-    });
-  }, [navigation]);
-
   useFocusEffect(
     useCallback(() => {
       async function fetchData() {
-        await fetchToken();
         try {
-          const points = await fetchPoints(authCtx.token);
-          const history = await fetchHistory(authCtx.token);
+          const points = await fetchPoints(token);
+          const history = await fetchHistory(token);
           const historyArray = Object.values(history).reverse();
           setPoints(points);
           setHistory(historyArray);
@@ -103,7 +66,7 @@ function TrackerScreen({ navigation }) {
       }
 
       fetchData();
-    }, [navigation, authCtx.token])
+    }, [navigation, token])
   );
 
   return isLoaded ? (

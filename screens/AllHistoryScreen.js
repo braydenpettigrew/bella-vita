@@ -1,14 +1,6 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Colors from "../constants/colors";
-import { useCallback, useContext, useLayoutEffect, useState } from "react";
-import { AuthContext } from "../context/auth-context";
+import { useCallback, useLayoutEffect, useState } from "react";
 import { fetchHistory } from "../util/http";
 import Title from "../components/Title";
 import { useFocusEffect } from "@react-navigation/native";
@@ -16,9 +8,11 @@ import HistoryEntry from "../components/HistoryEntry";
 import LoadingOverlay from "../components/LoadingOverlay";
 
 function AllHistoryScreen({ navigation }) {
-  const authCtx = useContext(AuthContext);
   const [history, setHistory] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   // Define a function to update history when deleted
   function handleDeleteHistory(timestamp) {
@@ -44,7 +38,7 @@ function AllHistoryScreen({ navigation }) {
     useCallback(() => {
       async function fetchData() {
         try {
-          const history = await fetchHistory(authCtx.token);
+          const history = await fetchHistory(token);
           const historyArray = Object.values(history).reverse();
           setHistory(historyArray);
           setIsLoaded(true);
@@ -62,7 +56,9 @@ function AllHistoryScreen({ navigation }) {
       <View style={styles.container}>
         <Title>All History</Title>
         {history.map((item, index) => (
-          <HistoryEntry key={index} onDeleteHistory={handleDeleteHistory}>{item}</HistoryEntry>
+          <HistoryEntry key={index} onDeleteHistory={handleDeleteHistory}>
+            {item}
+          </HistoryEntry>
         ))}
       </View>
     </ScrollView>

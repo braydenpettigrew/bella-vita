@@ -4,9 +4,10 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { FIREBASE_AUTH } from "../firebaseConfig";
 
-const API_KEY = "AIzaSyB73AZKXMGzg8oLSEoEMhXlcvkOjAjBtZQ";
+const API_KEY = process.env.API_KEY;
+const auth = FIREBASE_AUTH;
 
 async function authenticate(mode, email, password) {
   try {

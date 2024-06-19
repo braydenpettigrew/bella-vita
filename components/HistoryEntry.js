@@ -2,13 +2,12 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import Colors from "../constants/colors";
 import { deleteHistory } from "../util/http";
 import IconButton from "./IconButton";
-import { useContext } from "react";
-import { AuthContext } from "../context/auth-context";
-import { useNavigation } from "@react-navigation/native";
+import { FIREBASE_AUTH } from "../firebaseConfig";
 
 function HistoryEntry({ children, onDeleteHistory }) {
-  const authCtx = useContext(AuthContext);
-  const navigation = useNavigation();
+  const auth = FIREBASE_AUTH;
+  const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   function makeTimestamp(timestamp) {
     const date = new Date(timestamp);
@@ -39,7 +38,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
         {
           text: "Delete",
           onPress: () => {
-            deleteHistory(children.timestamp, authCtx.token);
+            deleteHistory(children.timestamp, token);
             onDeleteHistory(children.timestamp);
           },
           style: "destructive",
@@ -55,7 +54,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
         <View
           style={[
             styles.entryContainer,
-            authCtx.email === "brayden@thepettigrews.org" && { flex: 1 },
+            user.email === "brayden@thepettigrews.org" && { flex: 1 },
           ]}
         >
           <Text style={styles.text}>
@@ -66,7 +65,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
             <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
           </View>
         </View>
-        {authCtx.email === "brayden@thepettigrews.org" && (
+        {user.email === "brayden@thepettigrews.org" && (
           <IconButton
             icon="trash-outline"
             size={24}
@@ -82,7 +81,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
         <View
           style={[
             styles.entryContainer,
-            authCtx.email === "brayden@thepettigrews.org" && { flex: 1 },
+            user.email === "brayden@thepettigrews.org" && { flex: 1 },
           ]}
         >
           <Text style={styles.text}>
@@ -93,7 +92,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
             <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
           </View>
         </View>
-        {authCtx.email === "brayden@thepettigrews.org" && (
+        {user.email === "brayden@thepettigrews.org" && (
           <IconButton
             icon="trash-outline"
             size={24}
