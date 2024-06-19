@@ -18,7 +18,8 @@ function SocialScreen({ navigation }) {
       try {
         // Check if data is available in AsyncStorage
         const cachedData = await AsyncStorage.getItem("posts");
-        if (cachedData) {
+        if (cachedData.data !== undefined) {
+          console.log("cache");
           const { data, timestamp } = JSON.parse(cachedData);
 
           // Get the latest timestamp from Firestore
@@ -103,9 +104,12 @@ function SocialScreen({ navigation }) {
                 <Post
                   key={index}
                   userName={item.user}
+                  email={item.email}
                   image={item.url}
                   caption={item.caption}
                   timestamp={item.createdAt}
+                  likes={item.likes}
+                  comments={item.comments}
                 />
               ))}
           </ScrollView>
