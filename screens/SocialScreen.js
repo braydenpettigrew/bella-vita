@@ -18,8 +18,7 @@ function SocialScreen({ navigation }) {
       try {
         // Check if data is available in AsyncStorage
         const cachedData = await AsyncStorage.getItem("posts");
-        if (cachedData.data !== undefined) {
-          console.log("cache");
+        if (cachedData) {
           const { data, timestamp } = JSON.parse(cachedData);
 
           // Get the latest timestamp from Firestore
