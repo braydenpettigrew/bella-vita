@@ -103,9 +103,12 @@ function SocialScreen({ navigation }) {
                 <Post
                   key={index}
                   userName={item.user}
+                  email={item.email}
                   image={item.url}
                   caption={item.caption}
                   timestamp={item.createdAt}
+                  likes={item.likes}
+                  comments={item.comments}
                 />
               ))}
           </ScrollView>

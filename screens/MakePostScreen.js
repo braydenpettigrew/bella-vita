@@ -7,7 +7,6 @@ import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { doc, setDoc, addDoc, collection } from "firebase/firestore";
 import { FIREBASE_AUTH, db, storage } from "../firebaseConfig";
 import { getAllPushTokens } from "../util/http";
-import { getAuth } from "firebase/auth";
 
 function MakePostScreen({ navigation }) {
   const [uri, setUri] = useState(null);
@@ -92,7 +91,10 @@ function MakePostScreen({ navigation }) {
             downloadURL,
             datetime,
             user.displayName,
-            caption
+            user.email,
+            caption,
+            [],
+            0
           );
           await updateLatestTimestamp(datetime);
         });
@@ -101,20 +103,33 @@ function MakePostScreen({ navigation }) {
 
     setIsPostButtonDisabled(false);
 
-    // Send notification to others
+    // Send notification to others (disable when testing)
     sendPushNotificationHandler();
 
     navigation.navigate("Social");
   }
 
-  async function saveRecord(fileType, url, createdAt, user, caption) {
+  // Saves a record/stores a document in firestore database including the given paramaters
+  async function saveRecord(
+    fileType,
+    url,
+    createdAt,
+    user,
+    email,
+    caption,
+    comments,
+    likes
+  ) {
     try {
       const docRef = await addDoc(collection(db, "files"), {
         fileType,
         url,
         createdAt,
         user,
+        email,
         caption,
+        comments,
+        likes,
       });
     } catch (e) {
       console.log("MakePostScreen Error: ", e);
