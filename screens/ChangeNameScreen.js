@@ -12,8 +12,10 @@ function ChangeNameScreen({ navigation }) {
   const user = auth.currentUser;
 
   function changeNamePressedHandler() {
-    updateProfile(user, { displayName: name });
-    navigation.navigate("Settings", { newName: name });
+    if (name.trim() !== "") {
+      updateProfile(user, { displayName: name });
+      navigation.navigate("Settings", { newName: name });
+    }
   }
 
   return (
