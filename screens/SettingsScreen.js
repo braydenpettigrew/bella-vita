@@ -3,12 +3,12 @@ import Title from "../components/Title";
 import Colors from "../constants/colors";
 import MyButton from "../components/MyButton";
 import { FIREBASE_AUTH } from "../firebaseConfig";
-import React, { useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import React from "react";
 
-function SettingsScreen({ navigation }) {
+function SettingsScreen({ navigation, route }) {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
+  const updatedName = route.params ? route.params.newName : null; // When a user changes their name, display this instead of user.displayName
 
   function changeNamePressedHandler() {
     navigation.navigate("ChangeName");
@@ -28,7 +28,9 @@ function SettingsScreen({ navigation }) {
             <Text style={styles.settingsText}>Email: {user.email}</Text>
           </View>
           <View style={styles.nameSettingsContainer}>
-            <Text style={styles.settingsText}>Name: {user.displayName}</Text>
+            <Text style={styles.settingsText}>
+              Name: {updatedName ? updatedName : user.displayName}
+            </Text>
             <MyButton
               onPress={changeNamePressedHandler}
               buttonStyle={{ backgroundColor: Colors.primaryBlue }}
