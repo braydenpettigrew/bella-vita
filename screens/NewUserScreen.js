@@ -1,45 +1,53 @@
-import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import Input from "../components/Input";
 import Colors from "../constants/colors";
 import MyButton from "../components/MyButton";
 import { FIREBASE_AUTH } from "../firebaseConfig";
 import { updateProfile } from "firebase/auth";
+import Title from "../components/Title";
 
-function ChangeNameScreen({ navigation }) {
+function NewUserScreen({ onChangeName }) {
   const [name, setName] = useState("");
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
 
   function changeNamePressedHandler() {
-    if (name.trim() !== "") {
-      updateProfile(user, { displayName: name });
-      navigation.navigate("Settings", { newName: name });
-    }
+    if (name.trim() !== "") onChangeName(name);
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.infoText}>
-        This is the name that will be displayed across the app to you and other
-        users{"\n"}(ex: in the history under Austin's Points)
-      </Text>
+    <SafeAreaView style={styles.container}>
+      <Title>Bella Vita</Title>
+      <View style={styles.textContainer}>
+        <Text style={styles.infoText}>
+          Hello, and welcome! Please enter your name below. This name will be
+          your display name on the app. You will be able to change this name in
+          the app settings.
+        </Text>
+      </View>
       <View style={styles.inputContainer}>
         <Input
-          label="New Name:"
+          label="Enter Name:"
           style={styles.input}
           textInputConfig={{
             onChangeText: setName,
             value: name,
+            placeholder: "Name...",
           }}
         />
-        <MyButton onPress={changeNamePressedHandler}>Change Name</MyButton>
+        <MyButton
+          onPress={changeNamePressedHandler}
+          style={{ alignItems: "center" }}
+        >
+          Continue to Bella Vita
+        </MyButton>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
-export default ChangeNameScreen;
+export default NewUserScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -47,9 +55,12 @@ const styles = StyleSheet.create({
     margin: 16,
     alignItems: "center",
   },
+  textContainer: {
+    margin: 16,
+  },
   infoText: {
     textAlign: "center",
-    color: Colors.primaryDarkGray,
+    color: Colors.primaryBlue,
   },
   inputContainer: {
     marginVertical: 32,
