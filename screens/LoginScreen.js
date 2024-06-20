@@ -3,7 +3,6 @@ import { useState } from "react";
 import { login } from "../util/auth";
 import { Alert } from "react-native";
 import LoadingOverlay from "../components/LoadingOverlay";
-import { FIREBASE_AUTH } from "../firebaseConfig";
 
 function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);

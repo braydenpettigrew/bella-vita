@@ -21,9 +21,10 @@ import ChangeNameScreen from "./screens/ChangeNameScreen";
 import LoadingOverlay from "./components/LoadingOverlay";
 import SocialScreen from "./screens/SocialScreen";
 import MakePostScreen from "./screens/MakePostScreen";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebaseConfig";
 import * as Updates from "expo-updates";
+import NewUserScreen from "./screens/NewUserScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -101,7 +102,27 @@ function AuthenticatedStack() {
     configurePushNotifications();
   }, []);
 
-  return (
+  // Determine if the users display name is set, and set the initial route
+  const [newUser, setNewUser] = useState(false);
+
+  useEffect(() => {
+    if (
+      user.displayName === null ||
+      user.displayName === undefined ||
+      user.displayName === ""
+    ) {
+      setNewUser(true);
+    }
+  }, []);
+
+  function setDisplayName(name) {
+    updateProfile(user, { displayName: name });
+    setNewUser(false);
+  }
+
+  return newUser ? (
+    <NewUserScreen onChangeName={setDisplayName} />
+  ) : (
     <>
       <StatusBar style="auto" />
       <Tab.Navigator
