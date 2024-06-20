@@ -13,7 +13,7 @@ function ChangeNameScreen({ navigation }) {
 
   function changeNamePressedHandler() {
     updateProfile(user, { displayName: name });
-    navigation.goBack();
+    navigation.navigate("Settings", { newName: name });
   }
 
   return (
