@@ -11,7 +11,7 @@ import AddPointsScreen from "./screens/AddPointsScreen";
 import AllHistoryScreen from "./screens/AllHistoryScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RemovePointsScreen from "./screens/RemovePointsScreen";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import { Alert, Pressable, Text } from "react-native";
@@ -101,6 +101,24 @@ function AuthenticatedStack() {
     }
 
     configurePushNotifications();
+  }, []);
+
+  // Handle social notifications.
+  const navigationRef = useRef();
+
+  useEffect(() => {
+    const responseListener =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        // Assuming you have some kind of logic to determine if the notification should navigate to the social screen
+        const data = response.notification.request.content.data;
+        if (data.screen === "Social") {
+          navigationRef.current?.navigate("SocialStack");
+        }
+      });
+
+    return () => {
+      Notifications.removeNotificationSubscription(responseListener);
+    };
   }, []);
 
   // Determine if the users display name is set, and set the initial route
