@@ -32,7 +32,6 @@ function MakePostScreen({ navigation }) {
         to: pushTokensArray,
         title: `${user.displayName} posted an image!`,
         body: "Open the Bella Vita app to view the image.",
-        data: { screen: "Social" },
       }),
     });
   }

@@ -78,6 +78,34 @@ export async function storePushToken(pushToken, auth) {
   return response;
 }
 
+export async function storePushTokenWithEmail(pushToken, email, auth) {
+  // Check if push token with email already exists.
+  try {
+    const response = await axios.get(
+      `${BACKEND_URL}/pushtokens.json?auth=${auth}`
+    );
+
+    for (const key in response.data) {
+      if (response.data.hasOwnProperty(key)) {
+        const currentPushToken = response.data[key].pushToken;
+        const currentEmail = response.data[key].email;
+        if (currentPushToken === pushToken && currentEmail === email) {
+          return;
+        }
+      }
+    }
+    // If it does not exist, store it.
+    const response2 = await axios.post(
+      `${BACKEND_URL}/pushtokens.json?auth=${auth}`,
+      { pushToken: pushToken, email: email }
+    );
+    return response2;
+  } catch (error) {
+    console.log("http1 Error: ", error);
+    return error;
+  }
+}
+
 // Check if a specific push token exists on the backend.
 export async function pushTokenExists(pushToken, auth) {
   try {

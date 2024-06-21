@@ -16,7 +16,11 @@ import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import { Alert, Pressable, Text } from "react-native";
 import * as Notifications from "expo-notifications";
-import { pushTokenExists, storePushToken } from "./util/http";
+import {
+  pushTokenExists,
+  storePushToken,
+  storePushTokenWithEmail,
+} from "./util/http";
 import ChangeNameScreen from "./screens/ChangeNameScreen";
 import LoadingOverlay from "./components/LoadingOverlay";
 import SocialScreen from "./screens/SocialScreen";
@@ -85,6 +89,7 @@ function AuthenticatedStack() {
         const res = await pushTokenExists(pushToken, token);
 
         if (res) {
+          storePushTokenWithEmail(pushToken, user.email, token);
           return;
         }
       } catch (error) {
@@ -94,31 +99,13 @@ function AuthenticatedStack() {
 
       // If the push token doesn't exist on the backend, proceed to store it
       try {
-        await storePushToken({ pushToken: pushToken }, token);
+        storePushTokenWithEmail(pushToken, user.email, token);
       } catch (error) {
         console.error("Error storing push token on Firebase backend: ", error);
       }
     }
 
     configurePushNotifications();
-  }, []);
-
-  // Handle social notifications.
-  const navigationRef = useRef();
-
-  useEffect(() => {
-    const responseListener =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        // Assuming you have some kind of logic to determine if the notification should navigate to the social screen
-        const data = response.notification.request.content.data;
-        if (data.screen === "Social") {
-          navigationRef.current?.navigate("SocialStack");
-        }
-      });
-
-    return () => {
-      Notifications.removeNotificationSubscription(responseListener);
-    };
   }, []);
 
   // Determine if the users display name is set, and set the initial route
