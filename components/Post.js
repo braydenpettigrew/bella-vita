@@ -1,7 +1,7 @@
 import { Image, StyleSheet, Text, TextInput, View } from "react-native";
 import Colors from "../constants/colors";
 import IconButton from "./IconButton";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   collection,
   doc,
@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { FIREBASE_AUTH, db } from "../firebaseConfig";
 import MyButton from "./MyButton";
+import { ImageZoom } from "@likashefqet/react-native-image-zoom";
 
 function Post({ userName, email, image, caption, timestamp, likes, comments }) {
   // State variable that determines if the heart icon is full or not
@@ -235,6 +236,8 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
     updateLatestTimestamp(new Date(new Date().toISOString()));
   }
 
+  const imageZoomRef = useRef();
+
   return (
     <View style={styles.container}>
       <View style={styles.postHeaderContainer}>
@@ -242,7 +245,22 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
         <Text>{makeTimestamp(timestamp)}</Text>
       </View>
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={{ uri: image }} />
+        <ImageZoom
+          uri={image}
+          style={styles.image}
+          ref={imageZoomRef}
+          isDoubleTapEnabled
+          isPanEnabled={false}
+          doubleTapScale={1}
+          onDoubleTap={() => {
+            if (liked === false) {
+              handleLikePress();
+            }
+          }}
+          onPinchEnd={() => {
+            imageZoomRef.current?.reset();
+          }}
+        />
       </View>
       <View style={styles.belowImageContainer}>
         <View style={styles.captionContainer}>
@@ -305,19 +323,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.75,
     shadowRadius: 4,
+    zIndex: 0,
   },
   postHeaderContainer: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    zIndex: 1,
   },
   imageContainer: {
     alignItems: "center",
+    zIndex: 2,
   },
   captionContainer: {
     flex: 1,
     alignItems: "flex-start",
     marginLeft: 16,
+    zIndex: 1,
   },
   userNameText: {
     fontWeight: "bold",
