@@ -5,7 +5,15 @@ import LoadingOverlay from "../components/LoadingOverlay";
 import MyButton from "../components/MyButton";
 import { useEffect, useState } from "react";
 import Colors from "../constants/colors";
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -43,10 +51,15 @@ function SocialScreen({ navigation }) {
 
     const fetchLatestDataFromFirestore = async () => {
       const latestTimestamp = await getLatestTimestamp();
-      const unsubscribe = onSnapshot(collection(db, "files"), (snapshot) => {
+
+      const q = query(
+        collection(db, "files"),
+        orderBy("createdAt", "desc"),
+        limit(10)
+      );
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
         const updatedPosts = [];
-        // Get the latest timestamp from Firestore
-        // const updatedTimestamp = new Date().getTime(); // Get the current timestamp
 
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
