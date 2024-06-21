@@ -15,6 +15,7 @@ import {
 import { FIREBASE_AUTH, db } from "../firebaseConfig";
 import MyButton from "./MyButton";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
+import { getAllPushTokens } from "../util/http";
 
 function Post({ userName, email, image, caption, timestamp, likes, comments }) {
   // State variable that determines if the heart icon is full or not
@@ -25,6 +26,7 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
   const [commentDisabled, setCommentDisabled] = useState(false);
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
+  const token = user.stsTokenManager.accessToken;
 
   useEffect(() => {
     // Fetch initial likes count when component mounts
@@ -119,8 +121,29 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
             // Remove user from likedBy
             likedBy = likedBy.filter((uid) => uid !== user.uid);
           } else {
-            // Add user to likedBy
+            // Add user to likedBy, and send notification to user that their post was liked
             likedBy.push(user.uid);
+
+            // Figure out which user to send the notification to.
+            const pushTokensArray = await getAllPushTokens(token);
+            let pushToken;
+            for (item in pushTokensArray) {
+              if (pushTokensArray[item].email === docSnapshot.data().email) {
+                pushToken = pushTokensArray[item].pushToken;
+              }
+            }
+
+            await fetch("https://exp.host/--/api/v2/push/send", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                to: pushToken,
+                title: "Wow you are cool...",
+                body: `${user.displayName} liked your image!`,
+              }),
+            });
           }
 
           // Update likes count and likedBy array
@@ -224,6 +247,27 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
         const updatedDoc = await getDoc(postDocRef);
         const updatedComments = updatedDoc.data().comments;
         setPostComments(updatedComments);
+
+        // Figure out which user to send the notification to.
+        const pushTokensArray = await getAllPushTokens(token);
+        let pushToken;
+        for (item in pushTokensArray) {
+          if (pushTokensArray[item].email === docSnapshot.data().email) {
+            pushToken = pushTokensArray[item].pushToken;
+          }
+        }
+
+        await fetch("https://exp.host/--/api/v2/push/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: pushToken,
+            title: "Yo pal",
+            body: `${user.displayName} commented on your image!`,
+          }),
+        });
       } else {
         console.log("No document found with the given timestamp.");
       }
