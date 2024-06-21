@@ -6,6 +6,7 @@ import Title from "../components/Title";
 import { useFocusEffect } from "@react-navigation/native";
 import HistoryEntry from "../components/HistoryEntry";
 import LoadingOverlay from "../components/LoadingOverlay";
+import { FIREBASE_AUTH } from "../firebaseConfig";
 
 function AllHistoryScreen({ navigation }) {
   const [history, setHistory] = useState([]);
