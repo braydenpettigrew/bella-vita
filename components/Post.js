@@ -96,34 +96,49 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
   // Function to handle when a user likes an image
   async function handleLikePress() {
     setLiked((liked) => !liked);
-    const q = query(
-      collection(db, "files"),
-      where("createdAt", "==", timestamp)
-    );
 
     try {
-      // Execute the query
+      const q = query(
+        collection(db, "files"),
+        where("createdAt", "==", timestamp)
+      );
+
       const querySnapshot = await getDocs(q);
 
-      // Check if the document exists
       if (!querySnapshot.empty) {
         const docSnapshot = querySnapshot.docs[0];
-        const postDocRef = doc(db, "files", docSnapshot.id);
 
-        // Update the likes count
-        await updateDoc(
-          postDocRef,
-          {
-            likes: liked
-              ? docSnapshot.data().likes - 1
-              : docSnapshot.data().likes + 1,
-          },
-          { merge: true }
-        );
+        if (docSnapshot.exists()) {
+          const postDocRef = doc(db, "files", docSnapshot.id);
+          const currentLikes = docSnapshot.data().likes || 0;
+          let likedBy = docSnapshot.data().likedBy || []; // Initialize likedBy if it's undefined
 
-        const updatedDoc = await getDoc(postDocRef);
-        const updatedLikes = updatedDoc.data().likes;
-        setNumLikes(updatedLikes);
+          if (likedBy.includes(user.uid)) {
+            // Remove user from likedBy
+            likedBy = likedBy.filter((uid) => uid !== user.uid);
+          } else {
+            // Add user to likedBy
+            likedBy.push(user.uid);
+          }
+
+          // Update likes count and likedBy array
+          await updateDoc(
+            postDocRef,
+            {
+              likes: likedBy.length,
+              likedBy: likedBy,
+            },
+            { merge: true }
+          );
+
+          // Fetch updated document
+          const updatedDoc = await getDoc(postDocRef);
+          const updatedLikes = updatedDoc.data().likes || 0;
+
+          setNumLikes(updatedLikes);
+        } else {
+          console.log("Document does not exist.");
+        }
       } else {
         console.log("No document found with the given timestamp.");
       }
@@ -131,8 +146,40 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
       console.error("Error updating document: ", error);
     }
 
-    updateLatestTimestamp(new Date(new Date().toISOString()));
+    updateLatestTimestamp(new Date().toISOString());
   }
+
+  useEffect(() => {
+    async function fetchInitialData() {
+      try {
+        const q = query(
+          collection(db, "files"),
+          where("createdAt", "==", timestamp)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docSnapshot = querySnapshot.docs[0];
+          const likedBy = docSnapshot.data().likedBy || [];
+
+          // Check if current user has liked the post
+          const alreadyLiked = likedBy.includes(user.uid);
+          setLiked(alreadyLiked);
+
+          // Update likes count
+          setNumLikes(docSnapshot.data().likes);
+          // Update comments
+          setPostComments(docSnapshot.data().comments);
+        } else {
+          console.log("No document found with the given timestamp.");
+        }
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    }
+
+    fetchInitialData();
+  }, [timestamp]);
 
   // Function to handle when a user presses the comment button
   async function handleCommentPress() {
