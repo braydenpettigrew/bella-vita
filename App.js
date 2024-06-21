@@ -25,6 +25,7 @@ import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { FIREBASE_AUTH } from "./firebaseConfig";
 import * as Updates from "expo-updates";
 import NewUserScreen from "./screens/NewUserScreen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -305,6 +306,10 @@ export default function App() {
       if (update.isAvailable) {
         await Updates.fetchUpdateAsync();
         await Updates.reloadAsync();
+        Alert.alert(
+          "Update installed! What's new?",
+          "You may now zoom in on images and double tap images to like them!"
+        );
       }
     } catch (error) {
       // You can also add an alert() to see the error message in case of an error when fetching updates.
@@ -316,13 +321,13 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="light" />
       <NavigationContainer>
         {isLoading && <LoadingOverlay />}
         {user === null && <AuthStack />}
         {user && <AuthenticatedStack />}
       </NavigationContainer>
-    </>
+    </GestureHandlerRootView>
   );
 }

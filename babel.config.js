@@ -10,7 +10,8 @@ module.exports = function (api) {
           path: ".env",
         },
       ],
-      ['transform-inline-environment-variables']
+      ["transform-inline-environment-variables"],
+      ["react-native-reanimated/plugin"],
     ],
   };
 };
