@@ -306,10 +306,6 @@ export default function App() {
       if (update.isAvailable) {
         await Updates.fetchUpdateAsync();
         await Updates.reloadAsync();
-        Alert.alert(
-          "Update installed! What's new?",
-          "You may now zoom in on images and double tap images to like them!"
-        );
       }
     } catch (error) {
       // You can also add an alert() to see the error message in case of an error when fetching updates.
