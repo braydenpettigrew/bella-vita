@@ -13,6 +13,7 @@ import {
   where,
 } from "firebase/firestore";
 import { FIREBASE_AUTH, db } from "../firebaseConfig";
+import MyButton from "./MyButton";
 
 function Post({ userName, email, image, caption, timestamp, likes, comments }) {
   // State variable that determines if the heart icon is full or not
@@ -263,7 +264,10 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
         </View>
         {postComments?.map((comment, index) => (
           <Text key={index} style={styles.commentsText}>
-            {comment.user}: {comment.message}
+            <Text style={{ color: Colors.primaryBlue, fontWeight: "500" }}>
+              {comment.user}{" "}
+            </Text>{" "}
+            {comment.message}
           </Text>
         ))}
         <View style={styles.commentSubContainer}>
@@ -275,13 +279,14 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
               placeholder="Comment..."
             />
           </View>
-          <IconButton
-            icon="chatbubbles-outline"
-            size={24}
-            color={Colors.primaryRed}
+          <MyButton
             onPress={handleCommentPress}
             disabled={commentDisabled}
-          />
+            style={{ marginLeft: 12, marginTop: 1 }}
+            buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+          >
+            Send
+          </MyButton>
         </View>
       </View>
     </View>
