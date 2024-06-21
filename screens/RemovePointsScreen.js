@@ -32,13 +32,18 @@ function AddPointsScreen({ navigation, route }) {
   async function sendPushNotificationHandler() {
     const pushTokensArray = await getAllPushTokens(token);
 
+    let allPushTokens = [];
+    for (item in pushTokensArray) {
+      allPushTokens.push(pushTokensArray[item].pushToken);
+    }
+
     await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: pushTokensArray,
+        to: allPushTokens,
         title: "Austin lost points :(",
         body: "Open the Bella Vita app to see how.",
       }),

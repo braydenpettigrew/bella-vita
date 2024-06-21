@@ -139,8 +139,7 @@ export async function getAllPushTokens(auth) {
 
     for (const key in response.data) {
       if (response.data.hasOwnProperty(key)) {
-        const currentPushToken = response.data[key].pushToken;
-        pushTokens.push(currentPushToken);
+        pushTokens.push(response.data[key]);
       }
     }
 
