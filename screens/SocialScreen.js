@@ -124,6 +124,20 @@ function SocialScreen({ navigation }) {
                   comments={item.comments}
                 />
               ))}
+            <View style={styles.loadMoreContainer}>
+              <MyButton
+                style={{
+                  width: "50%",
+                  marginBottom: 16,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+                mode="flat"
+              >
+                Load more posts
+              </MyButton>
+            </View>
           </ScrollView>
         ) : (
           <Text style={styles.noPostsText}>There are no posts available.</Text>
@@ -166,6 +180,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 3,
     borderTopColor: Colors.primaryBlue,
     backgroundColor: "#fff",
+  },
+  loadMoreContainer: {
+    alignItems: "center",
   },
   scrollView: {
     flexGrow: 1,
