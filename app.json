@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bella Vita",
     "slug": "bella-vita",
-    "version": "2.2.1",
+    "version": "2.2.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,7 +14,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.braydenpettigrew.bellavita",
-      "buildNumber": "18"
+      "buildNumber": "19"
     },
     "android": {
       "adaptiveIcon": {
