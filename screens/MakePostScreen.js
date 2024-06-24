@@ -112,6 +112,11 @@ function MakePostScreen({ navigation }) {
             // Send notification to others
             await sendPushNotificationHandler();
 
+            Alert.alert(
+              "Post Success!",
+              "You have successfully posted an image. If you do not see your image, please reload the app"
+            );
+
             // Navigate to the "Social" screen
             navigation.navigate("Social");
           } catch (e) {
