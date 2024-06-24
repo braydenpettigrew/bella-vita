@@ -9,7 +9,7 @@ import Title from "../components/Title";
 import Post from "../components/Post";
 import LoadingOverlay from "../components/LoadingOverlay";
 import MyButton from "../components/MyButton";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Colors from "../constants/colors";
 import {
   collection,
@@ -22,6 +22,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 function SocialScreen({ navigation }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -29,47 +30,60 @@ function SocialScreen({ navigation }) {
   const [imageLimit, setImageLimit] = useState(10);
   const [totalPostCount, setTotalPostCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Check if data is available in AsyncStorage
-        const cachedData = await AsyncStorage.getItem("posts");
-        if (cachedData) {
-          const { data, timestamp } = JSON.parse(cachedData);
+  const fetchData = async () => {
+    try {
+      // Check if data is available in AsyncStorage
+      const cachedData = await AsyncStorage.getItem("posts");
+      if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
 
-          // Get the latest timestamp from Firestore
-          const latestTimestamp = await getLatestTimestamp();
+        // Get the latest timestamp from Firestore
+        const latestTimestamp = await getLatestTimestamp();
 
-          // If cached data is up-to-date, use it
-          if (timestamp === latestTimestamp) {
-            setPosts(data);
-            setIsLoaded(true);
-          } else {
-            // If cached data is outdated, fetch the latest data from Firestore
-            fetchLatestDataFromFirestore(10, true);
-          }
+        // If cached data is up-to-date, use it
+        if (timestamp === latestTimestamp) {
+          setPosts(data);
+          setIsLoaded(true);
         } else {
-          // If no cached data is available, fetch the latest data from Firestore
+          // If cached data is outdated, fetch the latest data from Firestore
           fetchLatestDataFromFirestore(10, true);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } else {
+        // If no cached data is available, fetch the latest data from Firestore
+        fetchLatestDataFromFirestore(10, true);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
-    const fetchTotalPostCount = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, "files"));
-        setTotalPostCount(snapshot.size);
-      } catch (error) {
-        console.error("Error fetching total post count:", error);
+  useEffect(() => {
+    if (isFirstLoad) {
+      fetchData();
+      setIsFirstLoad(false);
+
+      const fetchTotalPostCount = async () => {
+        try {
+          const snapshot = await getDocs(collection(db, "files"));
+          setTotalPostCount(snapshot.size);
+        } catch (error) {
+          console.error("Error fetching total post count:", error);
+        }
+      };
+
+      fetchTotalPostCount();
+    }
+  }, [isFirstLoad]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isFirstLoad) {
+        fetchData();
       }
-    };
-
-    fetchData();
-    fetchTotalPostCount();
-  }, []);
+    }, [isFirstLoad])
+  );
 
   const fetchLatestDataFromFirestore = async (
     numImages,
