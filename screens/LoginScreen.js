@@ -1,8 +1,9 @@
 import AuthContent from "../components/AuthContent";
 import { useState } from "react";
 import { login } from "../util/auth";
-import { Alert } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import LoadingOverlay from "../components/LoadingOverlay";
+import Title from "../components/Title";
 
 function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -24,7 +25,20 @@ function LoginScreen() {
   if (isAuthenticating) {
     return <LoadingOverlay />;
   }
-  return <AuthContent isLogin={true} onAuthenticate={loginHandler} />;
+  return (
+    <>
+      <View style={styles.container}>
+        <Title>Login</Title>
+      </View>
+      <AuthContent isLogin={true} onAuthenticate={loginHandler} />
+    </>
+  );
 }
 
 export default LoginScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+  },
+});

@@ -43,8 +43,16 @@ function AuthStack() {
         headerBackTitle: "Back",
       }}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ title: "Bella Vita" }}
+      />
+      <Stack.Screen
+        name="Signup"
+        component={SignupScreen}
+        options={{ title: "Bella Vita" }}
+      />
     </Stack.Navigator>
   );
 }

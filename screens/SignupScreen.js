@@ -1,8 +1,9 @@
-import { Alert } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import AuthContent from "../components/AuthContent";
 import { createUser } from "../util/auth";
 import { useState } from "react";
 import LoadingOverlay from "../components/LoadingOverlay";
+import Title from "../components/Title";
 
 function SignupScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -24,7 +25,20 @@ function SignupScreen() {
     return <LoadingOverlay />;
   }
 
-  return <AuthContent onAuthenticate={signupHandler} />;
+  return (
+    <>
+      <View style={styles.container}>
+        <Title>Sign Up</Title>
+      </View>
+      <AuthContent onAuthenticate={signupHandler} />
+    </>
+  );
 }
 
 export default SignupScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+  },
+});
