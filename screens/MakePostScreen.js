@@ -34,7 +34,7 @@ function MakePostScreen({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: "ExponentPushToken[oTdscDIUUcCKBjf20Aartt]",
+        to: allPushTokens,
         title: `${user.displayName} posted an image!`,
         body: "Open the Bella Vita app to view the image.",
         data: { screen: "Social" },
