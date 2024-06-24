@@ -2,12 +2,17 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 import Input from "../components/Input";
 import MyButton from "../components/MyButton";
-import { getAllPushTokens, storeHistory, updatePoints } from "../util/http";
+import {
+  fetchPoints,
+  getAllPushTokens,
+  storeHistory,
+  updatePoints,
+} from "../util/http";
 import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
 import { FIREBASE_AUTH } from "../firebaseConfig";
 
-function AddPointsScreen({ navigation, route }) {
+function AddPointsScreen({ navigation }) {
   const [enteredPoints, setEnteredPoints] = useState(0);
   const [enteredUser, setEnteredUser] = useState("");
   const [enteredReason, setEnteredReason] = useState("");
@@ -28,6 +33,15 @@ function AddPointsScreen({ navigation, route }) {
       ),
     });
   }, [navigation]);
+
+  async function fetchData() {
+    try {
+      const points = await fetchPoints(token);
+      return points;
+    } catch (error) {
+      console.log("Remove Points Screen Error: ", error);
+    }
+  }
 
   async function sendPushNotificationHandler() {
     const pushTokensArray = await getAllPushTokens(token);
@@ -50,10 +64,12 @@ function AddPointsScreen({ navigation, route }) {
     });
   }
 
-  function removePressHandler() {
+  async function removePressHandler() {
     setPointsInvalid(false);
     setUserInvalid(false);
     setReasonInvalid(false);
+
+    const currentPoints = await fetchData();
 
     if (
       parseInt(enteredPoints) === 0 ||
@@ -73,7 +89,7 @@ function AddPointsScreen({ navigation, route }) {
       setErrorVisible(true);
       return;
     }
-    updatePoints(route.params.points - parseInt(enteredPoints), token);
+    updatePoints(currentPoints - parseInt(enteredPoints), token);
     storeHistory(
       {
         pointsRemoved: enteredPoints,
@@ -91,8 +107,9 @@ function AddPointsScreen({ navigation, route }) {
   }
 
   // Quick add only works if the user has set a name in settings.
-  function quickRemovePressHandler(points, reason) {
-    updatePoints(route.params.points - points, token);
+  async function quickRemovePressHandler(points, reason) {
+    const currentPoints = await fetchData();
+    updatePoints(currentPoints - points, token);
     storeHistory(
       {
         pointsRemoved: points,
