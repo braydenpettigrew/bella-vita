@@ -1,17 +1,35 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Title from "../components/Title";
 import Post from "../components/Post";
 import LoadingOverlay from "../components/LoadingOverlay";
 import MyButton from "../components/MyButton";
 import { useEffect, useState } from "react";
 import Colors from "../constants/colors";
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function SocialScreen({ navigation }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [imageLimit, setImageLimit] = useState(10);
+  const [totalPostCount, setTotalPostCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,63 +48,97 @@ function SocialScreen({ navigation }) {
             setIsLoaded(true);
           } else {
             // If cached data is outdated, fetch the latest data from Firestore
-            fetchLatestDataFromFirestore();
+            fetchLatestDataFromFirestore(10, true);
           }
         } else {
           // If no cached data is available, fetch the latest data from Firestore
-          fetchLatestDataFromFirestore();
+          fetchLatestDataFromFirestore(10, true);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    const fetchLatestDataFromFirestore = async () => {
-      const latestTimestamp = await getLatestTimestamp();
-      const unsubscribe = onSnapshot(collection(db, "files"), (snapshot) => {
-        const updatedPosts = [];
-        // Get the latest timestamp from Firestore
-        // const updatedTimestamp = new Date().getTime(); // Get the current timestamp
-
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added") {
-            updatedPosts.push(change.doc.data());
-            setPosts((prevPosts) => [...prevPosts, change.doc.data()]);
-          }
-        });
-
-        setIsLoaded(true);
-
-        // Store the fetched data and timestamp in AsyncStorage
-        AsyncStorage.setItem(
-          "posts",
-          JSON.stringify({ data: updatedPosts, timestamp: latestTimestamp })
-        );
-      });
-
-      return () => unsubscribe();
-    };
-
-    const getLatestTimestamp = async () => {
+    const fetchTotalPostCount = async () => {
       try {
-        const metadataDocRef = doc(db, "metadata", "latest");
-        const metadataDocSnapshot = await getDoc(metadataDocRef);
-
-        if (metadataDocSnapshot.exists()) {
-          const latestTimestamp = metadataDocSnapshot.data().timestamp;
-          return latestTimestamp;
-        } else {
-          console.error("No metadata document found in Firestore.");
-          return null;
-        }
+        const snapshot = await getDocs(collection(db, "files"));
+        setTotalPostCount(snapshot.size);
       } catch (error) {
-        console.error("Error fetching latest timestamp:", error);
-        return null;
+        console.error("Error fetching total post count:", error);
       }
     };
 
     fetchData();
+    fetchTotalPostCount();
   }, []);
+
+  const fetchLatestDataFromFirestore = async (
+    numImages,
+    isInitialLoad = false
+  ) => {
+    const latestTimestamp = await getLatestTimestamp();
+
+    const q = query(
+      collection(db, "files"),
+      orderBy("createdAt", "desc"),
+      limit(numImages)
+    );
+
+    const snapshot = await getDocs(q);
+    const updatedPosts = snapshot.docs.map((doc) => doc.data());
+
+    if (isInitialLoad) {
+      setPosts(updatedPosts);
+    } else {
+      setPosts((prevPosts) => {
+        const newPosts = updatedPosts.filter(
+          (newPost) =>
+            !prevPosts.some((post) => post.createdAt === newPost.createdAt)
+        );
+        return [...prevPosts, ...newPosts];
+      });
+    }
+
+    setIsLoaded(true);
+    setIsLoadingMore(false);
+
+    // Store the fetched data and timestamp in AsyncStorage (only 10 most recent posts)
+    if (isInitialLoad) {
+      AsyncStorage.setItem(
+        "posts",
+        JSON.stringify({ data: updatedPosts, timestamp: latestTimestamp })
+      );
+    }
+  };
+
+  const getLatestTimestamp = async () => {
+    try {
+      const metadataDocRef = doc(db, "metadata", "latest");
+      const metadataDocSnapshot = await getDoc(metadataDocRef);
+
+      if (metadataDocSnapshot.exists()) {
+        const latestTimestamp = metadataDocSnapshot.data().timestamp;
+        return latestTimestamp;
+      } else {
+        console.error("No metadata document found in Firestore.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching latest timestamp:", error);
+      return null;
+    }
+  };
+
+  const loadMorePressedHandler = async () => {
+    setIsLoadingMore(true);
+    setImageLimit((prevLimit) => prevLimit + 10);
+  };
+
+  useEffect(() => {
+    if (imageLimit > 10) {
+      fetchLatestDataFromFirestore(imageLimit);
+    }
+  }, [imageLimit]);
 
   return (
     <View style={styles.container}>
@@ -111,6 +163,31 @@ function SocialScreen({ navigation }) {
                   comments={item.comments}
                 />
               ))}
+            <View style={styles.loadMoreContainer}>
+              {posts.length < totalPostCount &&
+                (isLoadingMore ? (
+                  <ActivityIndicator
+                    size="large"
+                    color={Colors.primaryBlue}
+                    style={{ marginBottom: 12 }}
+                  />
+                ) : (
+                  <MyButton
+                    style={{
+                      width: "50%",
+                      marginBottom: 16,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+                    mode="flat"
+                    onPress={loadMorePressedHandler}
+                    disabled={isLoadingMore}
+                  >
+                    Load more posts
+                  </MyButton>
+                ))}
+            </View>
           </ScrollView>
         ) : (
           <Text style={styles.noPostsText}>There are no posts available.</Text>
@@ -153,6 +230,9 @@ const styles = StyleSheet.create({
     borderTopWidth: 3,
     borderTopColor: Colors.primaryBlue,
     backgroundColor: "#fff",
+  },
+  loadMoreContainer: {
+    alignItems: "center",
   },
   scrollView: {
     flexGrow: 1,
