@@ -99,7 +99,4 @@ const styles = StyleSheet.create({
     marginTop: 12,
     alignItems: "center",
   },
-  button: {
-    backgroundColor: Colors.primaryGray,
-  },
 });
