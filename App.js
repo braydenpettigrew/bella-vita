@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "./constants/colors";
@@ -53,6 +53,7 @@ function AuthenticatedStack() {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
   const token = user.stsTokenManager.accessToken;
+  const navigation = useNavigation();
 
   useEffect(() => {
     async function configurePushNotifications() {
@@ -125,6 +126,33 @@ function AuthenticatedStack() {
     updateProfile(user, { displayName: name });
     setNewUser(false);
   }
+
+  // Handle when user presses social notifications
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  useEffect(() => {
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        // Optionally handle received notification here if needed
+      });
+
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        const screen = response.notification.request.content.data.screen;
+
+        if (screen === "Social") {
+          navigation.navigate("SocialStack");
+        }
+      });
+
+    return () => {
+      Notifications.removeNotificationSubscription(
+        notificationListener.current
+      );
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   return newUser ? (
     <NewUserScreen onChangeName={setDisplayName} />
