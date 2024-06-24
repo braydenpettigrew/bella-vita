@@ -1,5 +1,6 @@
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,12 +14,15 @@ import { useEffect, useState, useCallback } from "react";
 import Colors from "../constants/colors";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
   limit,
   orderBy,
   query,
+  setDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -153,6 +157,57 @@ function SocialScreen({ navigation }) {
     }
   }, [imageLimit]);
 
+  // Updates the latest timestamp in the metadata/latest folder of the database
+  const updateLatestTimestamp = async (datetime) => {
+    try {
+      const metadataDocRef = doc(db, "metadata", "latest");
+      await setDoc(metadataDocRef, { timestamp: datetime }, { merge: true });
+    } catch (error) {
+      console.error("Error updating latest timestamp:", error);
+    }
+  };
+
+  // Function to delete a post.
+  async function deletePostHandler(timestampToDelete) {
+    try {
+      // Reference to the collection
+      const postsCollection = collection(db, "files");
+
+      // Query to find the document with the specified timestamp
+      const q = query(
+        postsCollection,
+        where("createdAt", "==", timestampToDelete)
+      );
+
+      // Execute the query
+      const querySnapshot = await getDocs(q);
+
+      // Check if a document with the timestamp exists
+      if (!querySnapshot.empty) {
+        // Loop through the documents (there should typically be only one)
+        querySnapshot.forEach(async (docSnapshot) => {
+          // Get the document ID
+          const docId = docSnapshot.id;
+
+          // Delete the document
+          await deleteDoc(doc(db, "files", docId));
+
+          // Update the latest timestamp so that users will not cache this post anymore
+          await updateLatestTimestamp(new Date().toISOString());
+          fetchData();
+          Alert.alert("You have successfully deleted your post.");
+        });
+      } else {
+        Alert.alert(
+          "Deletion Failure",
+          "Cannot delete this post. Please reload the app and try again."
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting document:", error);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
@@ -174,6 +229,7 @@ function SocialScreen({ navigation }) {
                   timestamp={item.createdAt}
                   likes={item.likes}
                   comments={item.comments}
+                  onDelete={deletePostHandler}
                 />
               ))}
             <View style={styles.loadMoreContainer}>

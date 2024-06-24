@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import Colors from "../constants/colors";
 import IconButton from "./IconButton";
 import { useEffect, useRef, useState } from "react";
@@ -17,7 +17,16 @@ import MyButton from "./MyButton";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
 import { getAllPushTokens } from "../util/http";
 
-function Post({ userName, email, image, caption, timestamp, likes, comments }) {
+function Post({
+  userName,
+  email,
+  image,
+  caption,
+  timestamp,
+  likes,
+  comments,
+  onDelete,
+}) {
   // State variable that determines if the heart icon is full or not
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(0);
@@ -277,7 +286,24 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
     setCommentInput("");
     setCommentDisabled(false);
 
-    updateLatestTimestamp(new Date(new Date().toISOString()));
+    updateLatestTimestamp(new Date().toISOString());
+  }
+
+  // Function  to delete a post
+  function showDeleteConfirmationAlert() {
+    Alert.alert(
+      "Warning",
+      "Deleting this post will delete it forever. Are you sure that you want to delete this post?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => onDelete(timestamp),
+        },
+      ],
+      { cancelable: false }
+    );
   }
 
   const imageZoomRef = useRef();
@@ -287,6 +313,14 @@ function Post({ userName, email, image, caption, timestamp, likes, comments }) {
       <View style={styles.postHeaderContainer}>
         <Text style={styles.userNameText}>{userName}</Text>
         <Text>{makeTimestamp(timestamp)}</Text>
+        {user.email === email && (
+          <IconButton
+            icon={"trash"}
+            size={24}
+            color={Colors.primaryRed}
+            onPress={showDeleteConfirmationAlert}
+          />
+        )}
       </View>
       <View style={styles.imageContainer}>
         <ImageZoom
