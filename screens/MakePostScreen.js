@@ -67,51 +67,65 @@ function MakePostScreen({ navigation }) {
 
     if (!user) {
       console.error("User is not authenticated");
+      Alert.alert("Error", "Please log out and log back in.");
       return;
     }
 
-    const response = await fetch(uri);
-    const blob = await response.blob();
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
 
-    // Upload image to firebase storage
-    const storageRef = ref(storage, "Images/" + new Date().getTime());
-    const uploadTask = uploadBytesResumable(storageRef, blob);
+      // Upload image to firebase storage
+      const storageRef = ref(storage, "Images/" + new Date().getTime());
+      const uploadTask = uploadBytesResumable(storageRef, blob);
 
-    // Listen for events
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      },
-      (error) => {
-        // handle error
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          // save record
-          const datetime = new Date().toISOString();
-          await saveRecord(
-            "image",
-            downloadURL,
-            datetime,
-            user.displayName,
-            user.email,
-            caption,
-            [],
-            0
-          );
-          await updateLatestTimestamp(datetime);
-        });
-      }
-    );
+      // Listen for events
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        },
+        (error) => {
+          console.error("Image upload error: ", error);
+          Alert.alert("Image upload error: ", error);
+          setIsPostButtonDisabled(false);
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            // Save record
+            const datetime = new Date().toISOString();
+            await saveRecord(
+              "image",
+              downloadURL,
+              datetime,
+              user.displayName,
+              user.email,
+              caption,
+              [],
+              0
+            );
+            await updateLatestTimestamp(datetime);
 
-    setIsPostButtonDisabled(false);
+            // Send notification to others
+            await sendPushNotificationHandler();
 
-    // Send notification to others (disable when testing)
-    sendPushNotificationHandler();
-
-    navigation.navigate("Social");
+            // Navigate to the "Social" screen
+            navigation.navigate("Social");
+          } catch (e) {
+            console.error("Error during post creation: ", e);
+            Alert.alert("Error during post creation: ", e);
+          } finally {
+            setIsPostButtonDisabled(false);
+          }
+        }
+      );
+    } catch (error) {
+      console.error("Error fetching image: ", error);
+      Alert.alert("Error fetching image: ", error);
+      setIsPostButtonDisabled(false);
+    }
   }
 
   // Saves a record/stores a document in firestore database including the given paramaters
