@@ -8,9 +8,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { FIREBASE_AUTH, db } from "../firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import Colors from "../constants/colors";
+import MyButton from "../components/MyButton";
 
 function ProfileScreen({ route, navigation }) {
   const auth = FIREBASE_AUTH;
@@ -20,6 +21,9 @@ function ProfileScreen({ route, navigation }) {
   const [posts, setPosts] = useState([]);
   const [loadedImages, setLoadedImages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [imageLimit, setImageLimit] = useState(15);
+  const [totalPostCount, setTotalPostCount] = useState(0);
 
   useEffect(() => {
     fetchUserPosts();
@@ -33,13 +37,19 @@ function ProfileScreen({ route, navigation }) {
 
   async function fetchUserPosts() {
     try {
-      const q = query(collection(db, "files"), where("email", "==", email));
+      const q = query(
+        collection(db, "files"),
+        where("email", "==", email),
+        limit(imageLimit)
+      );
       const snapshot = await getDocs(q);
       const updatedPosts = snapshot.docs.map((doc) => doc.data());
       setPosts(updatedPosts);
     } catch (error) {
       console.error("Error fetching data from Firestore: ", error);
     }
+
+    setIsLoadingMore(false);
   }
 
   const handlePress = (item) => {
@@ -51,22 +61,48 @@ function ProfileScreen({ route, navigation }) {
   };
 
   const renderItem = ({ item }) => (
-    <Pressable onPress={() => handlePress(item)} style={styles.item}>
+    <Pressable
+      onPress={() => handlePress(item)}
+      style={({ pressed }) => [styles.item, pressed && { opacity: 0.2 }]}
+    >
       <Image
         source={{ uri: item.url }}
         style={styles.image}
         onLoad={handleImageLoad}
-        onError={(error) =>
-          console.error(`Image failed to load for item: ${item.url}`, error)
-        }
       />
     </Pressable>
   );
+
+  const loadMorePressedHandler = async () => {
+    setIsLoadingMore(true);
+    setImageLimit((prevLimit) => prevLimit + 15);
+  };
+
+  useEffect(() => {
+    if (imageLimit > 3) {
+      fetchUserPosts(imageLimit);
+    }
+  }, [imageLimit]);
+
+  useEffect(() => {
+    const fetchTotalPostCount = async () => {
+      try {
+        const q = query(collection(db, "files"), where("email", "==", email));
+        const snapshot = await getDocs(q);
+        setTotalPostCount(snapshot.size);
+      } catch (error) {
+        console.error("Error fetching total post count:", error);
+      }
+    };
+
+    fetchTotalPostCount();
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
         <Text style={styles.usernameText}>{userName}'s Profile</Text>
+        <Text style={styles.emailText}>Email: {email}</Text>
       </View>
       <View style={styles.imagesContainer}>
         <FlatList
@@ -79,6 +115,19 @@ function ProfileScreen({ route, navigation }) {
           columnWrapperStyle={styles.row}
         />
       </View>
+      {posts.length < totalPostCount && (
+        <View style={styles.loadMoreButtonContainer}>
+          <MyButton
+            style={styles.loadMoreButton}
+            buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+            mode="flat"
+            onPress={loadMorePressedHandler}
+            disabled={isLoadingMore}
+          >
+            Load more posts
+          </MyButton>
+        </View>
+      )}
       {loadedImages < posts.length && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" color={Colors.primaryGray} />
@@ -93,7 +142,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    paddingHorizontal: 16,
   },
   row: {
     flex: 1,
@@ -111,24 +160,37 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
+    borderBottomWidth: 2,
     borderColor: Colors.primaryGray,
     margin: 16,
   },
   imagesContainer: {
-    flex: 3,
+    flex: 10,
+    padding: 1,
   },
   usernameText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: Colors.primaryDarkBlue,
+  },
+  emailText: {
+    fontSize: 14,
+    color: Colors.primaryDarkGray,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "white",
     alignItems: "center",
     justifyContent: "center",
+  },
+  loadMoreButton: {
+    width: "50%",
+    marginBottom: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadMoreButtonContainer: {
+    alignItems: "center",
   },
 });
