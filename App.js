@@ -30,6 +30,8 @@ import { FIREBASE_AUTH } from "./firebaseConfig";
 import * as Updates from "expo-updates";
 import NewUserScreen from "./screens/NewUserScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ProfileScreen from "./screens/ProfileScreen";
+import PostScreen from "./screens/PostScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -181,7 +183,7 @@ function AuthenticatedStack() {
           options={{
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="people" color={color} size={size} />
+              <Ionicons name="add" color={color} size={size} />
             ),
             title: "Points",
           }}
@@ -255,6 +257,7 @@ function TrackerStack() {
 }
 
 function SocialStack() {
+  const navigation = useNavigation();
   return (
     <Stack.Navigator
       screenOptions={{
@@ -267,12 +270,31 @@ function SocialStack() {
         component={SocialScreen}
         options={{
           title: "Social",
+          headerRight: ({ tintColor }) => (
+            <Pressable onPress={() => navigation.navigate("Profile")}>
+              <Ionicons
+                name="person-circle-outline"
+                color={tintColor}
+                size={32}
+              />
+            </Pressable>
+          ),
         }}
       />
       <Stack.Screen
         name="MakePost"
         component={MakePostScreen}
         options={{ title: "Create Post" }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: "Profile" }}
+      />
+      <Stack.Screen
+        name="PostScreen"
+        component={PostScreen}
+        options={{ title: "Post" }}
       />
     </Stack.Navigator>
   );

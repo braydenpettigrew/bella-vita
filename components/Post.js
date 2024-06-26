@@ -1,4 +1,11 @@
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Alert,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import Colors from "../constants/colors";
 import IconButton from "./IconButton";
 import { useEffect, useRef, useState } from "react";
@@ -16,6 +23,7 @@ import { FIREBASE_AUTH, db } from "../firebaseConfig";
 import MyButton from "./MyButton";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
 import { getAllPushTokens } from "../util/http";
+import { useNavigation } from "@react-navigation/native";
 
 function Post({
   userName,
@@ -36,6 +44,7 @@ function Post({
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
   const token = user.stsTokenManager.accessToken;
+  const navigation = useNavigation();
 
   useEffect(() => {
     // Fetch initial likes count when component mounts
@@ -311,7 +320,16 @@ function Post({
   return (
     <View style={styles.container}>
       <View style={styles.postHeaderContainer}>
-        <Text style={styles.userNameText}>{userName}</Text>
+        <Pressable
+          onPress={() => {
+            navigation.navigate("Profile", {
+              userName: userName,
+              email: email,
+            });
+          }}
+        >
+          <Text style={styles.userNameText}>{userName}</Text>
+        </Pressable>
         <Text>{makeTimestamp(timestamp)}</Text>
         {user.email === email && (
           <IconButton
