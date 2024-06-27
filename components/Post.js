@@ -158,8 +158,8 @@ function Post({
               image,
               caption,
               timestamp,
-              likes: updatedDoc.data().likes,
-              comments: updatedComments,
+              likes: likedBy.length, // Update likes count
+              comments: docSnapshot.data().comments,
             };
 
             await fetch("https://exp.host/--/api/v2/push/send", {
