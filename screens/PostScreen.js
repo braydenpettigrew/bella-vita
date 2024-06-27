@@ -1,4 +1,10 @@
-import { Alert, Button, StyleSheet } from "react-native";
+import {
+  Alert,
+  Button,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from "react-native";
 import Post from "../components/Post";
 import {
   collection,
@@ -100,18 +106,24 @@ function PostScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <Post
-        userName={item.user}
-        email={item.email}
-        image={item.url}
-        caption={item.caption}
-        timestamp={item.createdAt}
-        likes={item.likes}
-        comments={item.comments}
-        onDelete={deletePostHandler}
-      />
-    </ScrollView>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView style={styles.scrollView}>
+        <Post
+          userName={item.user}
+          email={item.email}
+          image={item.url}
+          caption={item.caption}
+          timestamp={item.createdAt}
+          likes={item.likes}
+          comments={item.comments}
+          onDelete={deletePostHandler}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -121,5 +133,8 @@ const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
     width: "100%",
+  },
+  container: {
+    flex: 1,
   },
 });
