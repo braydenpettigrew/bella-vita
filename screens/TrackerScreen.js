@@ -9,8 +9,9 @@ import HistoryEntry from "../components/HistoryEntry";
 import MyButton from "../components/MyButton";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { FIREBASE_AUTH } from "../firebaseConfig";
+import MyAlert from "../components/MyAlert";
 
-function TrackerScreen({ navigation }) {
+function TrackerScreen({ navigation, route }) {
   const [points, setPoints] = useState(0);
   const [history, setHistory] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -18,6 +19,15 @@ function TrackerScreen({ navigation }) {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
   const token = user.stsTokenManager.accessToken;
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const newMessage = route?.params?.message || false;
+    setMessage(newMessage);
+    if (newMessage) {
+      handleShowAlert();
+    }
+  }, [navigation, route]);
 
   function addButtonPressedHandler() {
     navigation.navigate("AddPoints", { points });
@@ -69,10 +79,23 @@ function TrackerScreen({ navigation }) {
     }, [navigation, token])
   );
 
+  const [showAlert, setShowAlert] = useState(false);
+
+  const handleShowAlert = () => {
+    setShowAlert(true);
+  };
+
+  const handleHideAlert = () => {
+    setShowAlert(false);
+  };
+
   return isLoaded ? (
     <ScrollView>
       <View style={styles.container}>
         <Title>Austin's Points</Title>
+        {showAlert && (
+          <MyAlert message={message} duration={5000} onHide={handleHideAlert} />
+        )}
         <View
           style={[
             styles.pointsContainer,

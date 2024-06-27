@@ -27,14 +27,24 @@ import {
 import { db } from "../firebaseConfig";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import MyAlert from "../components/MyAlert";
 
-function SocialScreen({ navigation }) {
+function SocialScreen({ navigation, route }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [posts, setPosts] = useState([]);
   const [imageLimit, setImageLimit] = useState(10);
   const [totalPostCount, setTotalPostCount] = useState(0);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const newMessage = route?.params?.message || false;
+    setMessage(newMessage);
+    if (newMessage) {
+      handleShowAlert();
+    }
+  }, [navigation, route]);
 
   const fetchData = async () => {
     try {
@@ -195,7 +205,10 @@ function SocialScreen({ navigation }) {
           // Update the latest timestamp so that users will not cache this post anymore
           await updateLatestTimestamp(new Date().toISOString());
           fetchData();
-          Alert.alert("You have successfully deleted your post.");
+          setMessage(
+            "You have successfully deleted your post! If you do not see changes, please restart the app."
+          );
+          handleShowAlert();
         });
       } else {
         Alert.alert(
@@ -208,8 +221,21 @@ function SocialScreen({ navigation }) {
     }
   }
 
+  const [showAlert, setShowAlert] = useState(false);
+
+  const handleShowAlert = () => {
+    setShowAlert(true);
+  };
+
+  const handleHideAlert = () => {
+    setShowAlert(false);
+  };
+
   return (
     <View style={styles.container}>
+      {showAlert && (
+        <MyAlert message={message} duration={5000} onHide={handleHideAlert} />
+      )}
       <View style={styles.titleContainer}>
         <Title>Bella Vita Media</Title>
       </View>

@@ -65,10 +65,17 @@ function PostScreen({ route, navigation }) {
 
           // Update the latest timestamp so that users will not cache this post anymore
           await updateLatestTimestamp(new Date().toISOString());
-          Alert.alert("You have successfully deleted your post.");
           navigation.reset({
             index: 0,
-            routes: [{ name: "Social" }],
+            routes: [
+              {
+                name: "Social",
+                params: {
+                  message:
+                    "You have successfully deleted your post! If you do not see changes, please restart the app.",
+                },
+              },
+            ],
           });
         });
       } else {

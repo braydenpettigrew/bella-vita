@@ -103,7 +103,10 @@ function AddPointsScreen({ navigation }) {
     // Send notifications to other users that points were removed.
     sendPushNotificationHandler();
 
-    navigation.goBack();
+    navigation.navigate("Tracker", {
+      message:
+        "You have successfully removed points! If you do not see the updates, please restart the app.",
+    });
   }
 
   // Quick add only works if the user has set a name in settings.
@@ -123,7 +126,10 @@ function AddPointsScreen({ navigation }) {
     // Send notifications to other users that points were added.
     sendPushNotificationHandler();
 
-    navigation.goBack();
+    navigation.navigate("Tracker", {
+      message:
+        "You have successfully removed points! If you do not see the updates, please restart the app.",
+    });
   }
 
   return (
