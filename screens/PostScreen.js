@@ -16,18 +16,26 @@ import { Ionicons } from "@expo/vector-icons";
 
 function PostScreen({ route, navigation }) {
   const item = route.params.item;
+  const navBack = route.params.navBack;
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <Ionicons
-          name="chevron-back-outline"
-          size={32}
-          color="#FFFFFF"
-          onPress={() => navigation.goBack()}
-        />
-      ),
-    });
+    if (navBack) {
+      navigation.setOptions({
+        headerLeft: () => (
+          <Ionicons
+            name="chevron-back-outline"
+            size={32}
+            color="#FFFFFF"
+            onPress={() =>
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Social" }],
+              })
+            }
+          />
+        ),
+      });
+    }
   }, [navigation]);
 
   // Function to delete a post.
@@ -58,6 +66,10 @@ function PostScreen({ route, navigation }) {
           // Update the latest timestamp so that users will not cache this post anymore
           await updateLatestTimestamp(new Date().toISOString());
           Alert.alert("You have successfully deleted your post.");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Social" }],
+          });
         });
       } else {
         Alert.alert(
