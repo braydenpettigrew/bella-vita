@@ -153,12 +153,12 @@ function Post({
 
             // Prepare data object to send in the notification
             const notificationItem = {
-              userName,
-              email,
-              image,
-              caption,
-              timestamp,
-              likes: likedBy.length, // Update likes count
+              user: userName,
+              email: email,
+              url: image,
+              caption: caption,
+              createdAt: timestamp,
+              likes: likedBy,
               comments: docSnapshot.data().comments,
             };
 
@@ -289,11 +289,11 @@ function Post({
 
         // Prepare data object to send in the notification
         const notificationItem = {
-          userName,
-          email,
-          image,
-          caption,
-          timestamp,
+          user: userName,
+          email: email,
+          url: image,
+          caption: caption,
+          createdAt: timestamp,
           likes: updatedDoc.data().likes,
           comments: updatedComments,
         };

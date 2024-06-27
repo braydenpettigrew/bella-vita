@@ -1,4 +1,4 @@
-import { Alert, StyleSheet } from "react-native";
+import { Alert, Button, StyleSheet } from "react-native";
 import Post from "../components/Post";
 import {
   collection,
@@ -11,9 +11,24 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { ScrollView } from "react-native-gesture-handler";
+import { useLayoutEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
 
-function PostScreen({ route }) {
+function PostScreen({ route, navigation }) {
   const item = route.params.item;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <Ionicons
+          name="chevron-back-outline"
+          size={32}
+          color="#FFFFFF"
+          onPress={() => navigation.goBack()}
+        />
+      ),
+    });
+  }, [navigation]);
 
   // Function to delete a post.
   async function deletePostHandler(timestampToDelete) {
