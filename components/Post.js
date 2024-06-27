@@ -151,6 +151,17 @@ function Post({
               }
             }
 
+            // Prepare data object to send in the notification
+            const item = {
+              userName,
+              email,
+              image,
+              caption,
+              timestamp,
+              likes: updatedDoc.data().likes,
+              comments: updatedComments,
+            };
+
             await fetch("https://exp.host/--/api/v2/push/send", {
               method: "POST",
               headers: {
@@ -160,6 +171,7 @@ function Post({
                 to: pushToken,
                 title: "Wow you are cool...",
                 body: `${user.displayName} liked your image!`,
+                data: { item: item, screen: "Post" },
               }),
             });
           }
@@ -275,6 +287,17 @@ function Post({
           }
         }
 
+        // Prepare data object to send in the notification
+        const item = {
+          userName,
+          email,
+          image,
+          caption,
+          timestamp,
+          likes: updatedDoc.data().likes,
+          comments: updatedComments,
+        };
+
         await fetch("https://exp.host/--/api/v2/push/send", {
           method: "POST",
           headers: {
@@ -284,6 +307,7 @@ function Post({
             to: pushToken,
             title: "Yo pal",
             body: `${user.displayName} commented on your image!`,
+            data: { item: item, screen: "Post" },
           }),
         });
       } else {
