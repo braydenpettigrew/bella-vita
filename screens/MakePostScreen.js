@@ -110,7 +110,7 @@ function MakePostScreen({ navigation }) {
             await updateLatestTimestamp(datetime);
 
             // Send notification to others
-            // await sendPushNotificationHandler();
+            await sendPushNotificationHandler();
 
             Alert.alert(
               "Post Success!",
