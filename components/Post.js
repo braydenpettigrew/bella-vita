@@ -144,15 +144,15 @@ function Post({
 
             // Figure out which user to send the notification to.
             const pushTokensArray = await getAllPushTokens(token);
-            let pushToken;
+            let pushToken = [];
             for (item in pushTokensArray) {
               if (pushTokensArray[item].email === docSnapshot.data().email) {
-                pushToken = pushTokensArray[item].pushToken;
+                pushToken.push(pushTokensArray[item].pushToken);
               }
             }
 
             // Prepare data object to send in the notification
-            const item = {
+            const notificationItem = {
               userName,
               email,
               image,
@@ -171,7 +171,7 @@ function Post({
                 to: pushToken,
                 title: "Wow you are cool...",
                 body: `${user.displayName} liked your image!`,
-                data: { item: item, screen: "Post" },
+                data: { item: notificationItem, screen: "Post" },
               }),
             });
           }
@@ -280,15 +280,15 @@ function Post({
 
         // Figure out which user to send the notification to.
         const pushTokensArray = await getAllPushTokens(token);
-        let pushToken;
+        let pushToken = [];
         for (item in pushTokensArray) {
           if (pushTokensArray[item].email === docSnapshot.data().email) {
-            pushToken = pushTokensArray[item].pushToken;
+            pushToken.push(pushTokensArray[item].pushToken);
           }
         }
 
         // Prepare data object to send in the notification
-        const item = {
+        const notificationItem = {
           userName,
           email,
           image,
@@ -307,7 +307,7 @@ function Post({
             to: pushToken,
             title: "Yo pal",
             body: `${user.displayName} commented on your image!`,
-            data: { item: item, screen: "Post" },
+            data: { item: notificationItem, screen: "Post" },
           }),
         });
       } else {
