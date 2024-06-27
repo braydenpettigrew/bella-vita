@@ -144,12 +144,23 @@ function Post({
 
             // Figure out which user to send the notification to.
             const pushTokensArray = await getAllPushTokens(token);
-            let pushToken;
+            let pushToken = [];
             for (item in pushTokensArray) {
               if (pushTokensArray[item].email === docSnapshot.data().email) {
-                pushToken = pushTokensArray[item].pushToken;
+                pushToken.push(pushTokensArray[item].pushToken);
               }
             }
+
+            // Prepare data object to send in the notification
+            const notificationItem = {
+              user: userName,
+              email: email,
+              url: image,
+              caption: caption,
+              createdAt: timestamp,
+              likes: likedBy,
+              comments: docSnapshot.data().comments,
+            };
 
             await fetch("https://exp.host/--/api/v2/push/send", {
               method: "POST",
@@ -160,6 +171,7 @@ function Post({
                 to: pushToken,
                 title: "Wow you are cool...",
                 body: `${user.displayName} liked your image!`,
+                data: { item: notificationItem, screen: "Post" },
               }),
             });
           }
@@ -268,12 +280,23 @@ function Post({
 
         // Figure out which user to send the notification to.
         const pushTokensArray = await getAllPushTokens(token);
-        let pushToken;
+        let pushToken = [];
         for (item in pushTokensArray) {
           if (pushTokensArray[item].email === docSnapshot.data().email) {
-            pushToken = pushTokensArray[item].pushToken;
+            pushToken.push(pushTokensArray[item].pushToken);
           }
         }
+
+        // Prepare data object to send in the notification
+        const notificationItem = {
+          user: userName,
+          email: email,
+          url: image,
+          caption: caption,
+          createdAt: timestamp,
+          likes: updatedDoc.data().likes,
+          comments: updatedComments,
+        };
 
         await fetch("https://exp.host/--/api/v2/push/send", {
           method: "POST",
@@ -284,6 +307,7 @@ function Post({
             to: pushToken,
             title: "Yo pal",
             body: `${user.displayName} commented on your image!`,
+            data: { item: notificationItem, screen: "Post" },
           }),
         });
       } else {
