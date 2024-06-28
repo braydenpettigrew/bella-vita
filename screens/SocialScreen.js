@@ -16,16 +16,13 @@ import {
   collection,
   deleteDoc,
   doc,
-  getDoc,
   getDocs,
   limit,
   orderBy,
   query,
-  setDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import MyAlert from "../components/MyAlert";
 
@@ -47,41 +44,16 @@ function SocialScreen({ navigation, route }) {
     }
   }, [navigation, route]);
 
-  const fetchData = async () => {
-    try {
-      // Check if data is available in AsyncStorage
-      const cachedData = await AsyncStorage.getItem("posts");
-      if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData);
-
-        // Get the latest timestamp from Firestore
-        const latestTimestamp = await getLatestTimestamp();
-
-        // If cached data is up-to-date, use it
-        if (timestamp === latestTimestamp) {
-          setPosts(data);
-          setIsLoaded(true);
-        } else {
-          // If cached data is outdated, fetch the latest data from Firestore
-          fetchLatestDataFromFirestore(10, true);
-        }
-      } else {
-        // If no cached data is available, fetch the latest data from Firestore
-        fetchLatestDataFromFirestore(10, true);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
   useEffect(() => {
     if (isFirstLoad) {
-      fetchData();
+      fetchLatestDataFromFirestore(10);
       setIsFirstLoad(false);
 
       const fetchTotalPostCount = async () => {
         try {
-          const snapshot = await getDocs(collection(db, "files"));
+          const snapshot = await getDocs(
+            collection(db, "groups", group.id, "posts")
+          );
           setTotalPostCount(snapshot.size);
         } catch (error) {
           console.error("Error fetching total post count:", error);
@@ -95,7 +67,7 @@ function SocialScreen({ navigation, route }) {
   useFocusEffect(
     useCallback(() => {
       if (!isFirstLoad) {
-        fetchData();
+        fetchLatestDataFromFirestore(10);
       }
     }, [isFirstLoad])
   );
@@ -104,10 +76,8 @@ function SocialScreen({ navigation, route }) {
     numImages,
     isInitialLoad = false
   ) => {
-    const latestTimestamp = await getLatestTimestamp();
-
     const q = query(
-      collection(db, "files"),
+      collection(db, "groups", group.id, "posts"),
       orderBy("createdAt", "desc"),
       limit(numImages)
     );
@@ -129,32 +99,6 @@ function SocialScreen({ navigation, route }) {
 
     setIsLoaded(true);
     setIsLoadingMore(false);
-
-    // Store the fetched data and timestamp in AsyncStorage (only 10 most recent posts)
-    if (isInitialLoad) {
-      AsyncStorage.setItem(
-        "posts",
-        JSON.stringify({ data: updatedPosts, timestamp: latestTimestamp })
-      );
-    }
-  };
-
-  const getLatestTimestamp = async () => {
-    try {
-      const metadataDocRef = doc(db, "metadata", "latest");
-      const metadataDocSnapshot = await getDoc(metadataDocRef);
-
-      if (metadataDocSnapshot.exists()) {
-        const latestTimestamp = metadataDocSnapshot.data().timestamp;
-        return latestTimestamp;
-      } else {
-        console.error("No metadata document found in Firestore.");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching latest timestamp:", error);
-      return null;
-    }
   };
 
   const loadMorePressedHandler = async () => {
@@ -168,21 +112,11 @@ function SocialScreen({ navigation, route }) {
     }
   }, [imageLimit]);
 
-  // Updates the latest timestamp in the metadata/latest folder of the database
-  const updateLatestTimestamp = async (datetime) => {
-    try {
-      const metadataDocRef = doc(db, "metadata", "latest");
-      await setDoc(metadataDocRef, { timestamp: datetime }, { merge: true });
-    } catch (error) {
-      console.error("Error updating latest timestamp:", error);
-    }
-  };
-
   // Function to delete a post.
   async function deletePostHandler(timestampToDelete) {
     try {
       // Reference to the collection
-      const postsCollection = collection(db, "files");
+      const postsCollection = collection(db, "groups", group.id, "posts");
 
       // Query to find the document with the specified timestamp
       const q = query(
@@ -201,11 +135,10 @@ function SocialScreen({ navigation, route }) {
           const docId = docSnapshot.id;
 
           // Delete the document
-          await deleteDoc(doc(db, "files", docId));
+          await deleteDoc(doc(db, "groups", group.id, "posts", docId));
 
-          // Update the latest timestamp so that users will not cache this post anymore
-          await updateLatestTimestamp(new Date().toISOString());
-          fetchData();
+          // Refetch posts
+          fetchLatestDataFromFirestore(10);
           setMessage(
             "You have successfully deleted your post! If you do not see changes, please restart the app."
           );
@@ -257,6 +190,7 @@ function SocialScreen({ navigation, route }) {
                   likes={item.likes}
                   comments={item.comments}
                   onDelete={deletePostHandler}
+                  group={group}
                 />
               ))}
             <View style={styles.loadMoreContainer}>

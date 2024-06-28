@@ -286,7 +286,8 @@ function SocialStack() {
         options={{
           title: "Social",
           headerRight: ({ tintColor }) => (
-            <Pressable onPress={() => navigation.navigate("Profile")}>
+            // navigation.navigate("Profile")
+            <Pressable onPress={() => Alert.alert("Currently disabled.")}>
               <Ionicons
                 name="person-circle-outline"
                 color={tintColor}

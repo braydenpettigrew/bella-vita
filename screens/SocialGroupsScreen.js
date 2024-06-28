@@ -15,6 +15,8 @@ import { useEffect, useState } from "react";
 import MyAlert from "../components/MyAlert";
 import { SUPER_ADMIN } from "../constants/admin";
 import Input from "../components/Input";
+import Colors from "../constants/colors";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 function SocialGroupsScreen({ navigation }) {
   const auth = FIREBASE_AUTH;
@@ -22,6 +24,7 @@ function SocialGroupsScreen({ navigation }) {
   const token = user.stsTokenManager.accessToken;
   const [newGroupName, setNewGroupName] = useState("");
   const [userGroups, setUserGroups] = useState([]);
+  const [loadingGroups, setLoadingGroups] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -49,6 +52,7 @@ function SocialGroupsScreen({ navigation }) {
     }
   }
 
+  // Fetch all groups that the user is a part of.
   useEffect(() => {
     async function fetchGroups() {
       try {
@@ -62,7 +66,7 @@ function SocialGroupsScreen({ navigation }) {
           ...doc.data(),
         }));
         setUserGroups(userGroups);
-        console.log(userGroups);
+        setLoadingGroups(false);
       } catch (error) {
         console.error("Error fetching groups: ", error);
       }
@@ -76,7 +80,34 @@ function SocialGroupsScreen({ navigation }) {
       {showAlert && (
         <MyAlert message={message} duration={5000} onHide={handleHideAlert} />
       )}
-      <Title>Groups</Title>
+      <Title>My Groups</Title>
+      {loadingGroups ? (
+        <LoadingOverlay />
+      ) : userGroups.length > 0 ? (
+        userGroups.map((userGroup) => (
+          <View key={userGroup.id} style={styles.groupContainer}>
+            <Pressable
+              onPress={() =>
+                navigation.navigate("Social", { group: userGroup })
+              }
+            >
+              <Text style={styles.groupText}>{userGroup.name}</Text>
+            </Pressable>
+          </View>
+        ))
+      ) : (
+        <Text>
+          You are not a part of any groups. Please ask the app administrator to
+          add you to a group!
+        </Text>
+      )}
+      <View style={styles.infoTextContainer}>
+        <Text style={styles.infoText}>
+          Note: Currently, users do not have the ability to create groups.
+          Please ask the app administrator (yeah... I have a cool name like
+          that) to create a group for you.
+        </Text>
+      </View>
       {user.uid === SUPER_ADMIN && (
         <View>
           <Input
@@ -91,16 +122,6 @@ function SocialGroupsScreen({ navigation }) {
           <MyButton onPress={createGroupPressedHandler}>Create Group</MyButton>
         </View>
       )}
-      <Text>Groups:</Text>
-      {userGroups.map((userGroup) => (
-        <View key={userGroup.id}>
-          <Pressable
-            onPress={() => navigation.navigate("Social", { group: userGroup })}
-          >
-            <Text>{userGroup.name}</Text>
-          </Pressable>
-        </View>
-      ))}
     </View>
   );
 }
@@ -116,5 +137,29 @@ const styles = StyleSheet.create({
     width: "80%",
     height: 60,
     marginVertical: 8,
+  },
+  groupContainer: {
+    backgroundColor: Colors.primaryGray,
+    margin: 16,
+    borderRadius: 4,
+    shadowColor: "black",
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.35,
+    shadowRadius: 4,
+    height: 40,
+    width: "50%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  groupText: {
+    fontSize: 16,
+    color: Colors.primaryBlue,
+  },
+  infoTextContainer: {
+    margin: 16,
+  },
+  infoText: {
+    textAlign: "center",
+    color: Colors.primaryDarkGray,
   },
 });

@@ -1,6 +1,5 @@
 import {
   Alert,
-  Button,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -12,7 +11,6 @@ import {
   doc,
   getDocs,
   query,
-  setDoc,
   where,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
@@ -23,6 +21,7 @@ import { Ionicons } from "@expo/vector-icons";
 function PostScreen({ route, navigation }) {
   const item = route.params.item;
   const navBack = route.params.navBack;
+  const group = route.params?.group;
 
   useLayoutEffect(() => {
     if (navBack) {
@@ -48,7 +47,7 @@ function PostScreen({ route, navigation }) {
   async function deletePostHandler(timestampToDelete) {
     try {
       // Reference to the collection
-      const postsCollection = collection(db, "files");
+      const postsCollection = collection(db, "groups", group.id, "posts");
 
       // Query to find the document with the specified timestamp
       const q = query(
@@ -67,10 +66,8 @@ function PostScreen({ route, navigation }) {
           const docId = docSnapshot.id;
 
           // Delete the document
-          await deleteDoc(doc(db, "files", docId));
+          await deleteDoc(doc(db, "groups", group.id, "posts", docId));
 
-          // Update the latest timestamp so that users will not cache this post anymore
-          await updateLatestTimestamp(new Date().toISOString());
           navigation.reset({
             index: 0,
             routes: [
@@ -79,6 +76,7 @@ function PostScreen({ route, navigation }) {
                 params: {
                   message:
                     "You have successfully deleted your post! If you do not see changes, please restart the app.",
+                  group: group,
                 },
               },
             ],
@@ -94,16 +92,6 @@ function PostScreen({ route, navigation }) {
       console.error("Error deleting document:", error);
     }
   }
-
-  // Updates the latest timestamp in the metadata/latest folder of the database
-  const updateLatestTimestamp = async (datetime) => {
-    try {
-      const metadataDocRef = doc(db, "metadata", "latest");
-      await setDoc(metadataDocRef, { timestamp: datetime }, { merge: true });
-    } catch (error) {
-      console.error("Error updating latest timestamp:", error);
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -121,6 +109,7 @@ function PostScreen({ route, navigation }) {
           likes={item.likes}
           comments={item.comments}
           onDelete={deletePostHandler}
+          group={group}
         />
       </ScrollView>
     </KeyboardAvoidingView>

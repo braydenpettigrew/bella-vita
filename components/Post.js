@@ -34,6 +34,7 @@ function Post({
   likes,
   comments,
   onDelete,
+  group,
 }) {
   // State variable that determines if the heart icon is full or not
   const [liked, setLiked] = useState(false);
@@ -51,7 +52,7 @@ function Post({
     async function fetchLikes() {
       try {
         const q = query(
-          collection(db, "files"),
+          collection(db, "groups", group.id, "posts"),
           where("createdAt", "==", timestamp)
         );
         const querySnapshot = await getDocs(q);
@@ -70,7 +71,7 @@ function Post({
     async function fetchComments() {
       try {
         const q = query(
-          collection(db, "files"),
+          collection(db, "groups", group.id, "posts"),
           where("createdAt", "==", timestamp)
         );
         const querySnapshot = await getDocs(q);
@@ -81,23 +82,13 @@ function Post({
           console.log("No document found with the given timestamp.");
         }
       } catch (error) {
-        console.error("Error fetching likes: ", error);
+        console.error("Error fetching comments: ", error);
       }
     }
 
     fetchLikes();
     fetchComments();
   }, [timestamp]);
-
-  // Updates the latest timestamp in the metadata/latest folder of the database
-  const updateLatestTimestamp = async (datetime) => {
-    try {
-      const metadataDocRef = doc(db, "metadata", "latest");
-      await setDoc(metadataDocRef, { timestamp: datetime }, { merge: true });
-    } catch (error) {
-      console.error("Error updating latest timestamp:", error);
-    }
-  };
 
   function makeTimestamp(timestamp) {
     const date = new Date(timestamp);
@@ -121,7 +112,7 @@ function Post({
 
     try {
       const q = query(
-        collection(db, "files"),
+        collection(db, "groups", group.id, "posts"),
         where("createdAt", "==", timestamp)
       );
 
@@ -131,7 +122,13 @@ function Post({
         const docSnapshot = querySnapshot.docs[0];
 
         if (docSnapshot.exists()) {
-          const postDocRef = doc(db, "files", docSnapshot.id);
+          const postDocRef = doc(
+            db,
+            "groups",
+            group.id,
+            "posts",
+            docSnapshot.id
+          );
           const currentLikes = docSnapshot.data().likes || 0;
           let likedBy = docSnapshot.data().likedBy || []; // Initialize likedBy if it's undefined
 
@@ -200,15 +197,13 @@ function Post({
     } catch (error) {
       console.error("Error updating document: ", error);
     }
-
-    updateLatestTimestamp(new Date().toISOString());
   }
 
   useEffect(() => {
     async function fetchInitialData() {
       try {
         const q = query(
-          collection(db, "files"),
+          collection(db, "groups", group.id, "posts"),
           where("createdAt", "==", timestamp)
         );
         const querySnapshot = await getDocs(q);
@@ -246,7 +241,7 @@ function Post({
     }
 
     const q = query(
-      collection(db, "files"),
+      collection(db, "groups", group.id, "posts"),
       where("createdAt", "==", timestamp)
     );
 
@@ -257,7 +252,7 @@ function Post({
       // Check if the document exists
       if (!querySnapshot.empty) {
         const docSnapshot = querySnapshot.docs[0];
-        const postDocRef = doc(db, "files", docSnapshot.id);
+        const postDocRef = doc(db, "groups", group.id, "posts", docSnapshot.id);
 
         // Get the current comments array
         const currentComments = docSnapshot.data().comments;
@@ -318,8 +313,6 @@ function Post({
     }
     setCommentInput("");
     setCommentDisabled(false);
-
-    updateLatestTimestamp(new Date().toISOString());
   }
 
   // Function  to delete a post
@@ -349,6 +342,7 @@ function Post({
             navigation.navigate("Profile", {
               userName: userName,
               email: email,
+              group: group,
             });
           }}
         >

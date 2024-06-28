@@ -32,31 +32,34 @@ function ProfileScreen({ route, navigation }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const group = route.params?.group;
 
   const fetchUserPosts = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
 
     setIsLoadingMore(true);
     try {
-      let q = query(
-        collection(db, "files"),
-        where("email", "==", email),
-        orderBy("createdAt", "desc"),
-        limit(ITEMS_PER_PAGE)
-      );
-
-      if (lastVisible) {
-        q = query(q, startAfter(lastVisible));
+      let q;
+      let newPosts = [];
+      if (group) {
+        q = query(
+          collection(db, "groups", group.id, "posts"),
+          where("email", "==", email),
+          orderBy("createdAt", "desc"),
+          limit(ITEMS_PER_PAGE)
+        );
+        if (lastVisible) {
+          q = query(q, startAfter(lastVisible));
+        }
+        const snapshot = await getDocs(q);
+        newPosts = snapshot.docs.map((doc) => doc.data());
+        setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
       }
-
-      const snapshot = await getDocs(q);
-      const newPosts = snapshot.docs.map((doc) => doc.data());
 
       if (newPosts.length < ITEMS_PER_PAGE) {
         setHasMore(false);
       }
 
-      setLastVisible(snapshot.docs[snapshot.docs.length - 1]);
       setPosts((prevPosts) => [...prevPosts, ...newPosts]);
     } catch (error) {
       console.error("Error fetching data from Firestore: ", error);
@@ -72,7 +75,7 @@ function ProfileScreen({ route, navigation }) {
 
   const handlePress = useCallback(
     (item) => {
-      navigation.navigate("PostScreen", { item });
+      navigation.navigate("PostScreen", { item, group: group });
     },
     [navigation]
   );

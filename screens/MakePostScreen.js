@@ -21,10 +21,9 @@ function MakePostScreen({ navigation, route }) {
   const [caption, setCaption] = useState("");
   const [isPostButtonDisabled, setIsPostButtonDisabled] = useState(false);
   const auth = FIREBASE_AUTH;
-  const user = auth.currentUser;
-  const token = user.stsTokenManager.accessToken;
+  const FIREBASE_USER = auth.currentUser;
+  const token = FIREBASE_USER.stsTokenManager.accessToken;
   const group = route.params.group;
-  console.log("group: ", route.params.group);
 
   function onImageTaken(uri) {
     setUri(uri);
@@ -45,22 +44,12 @@ function MakePostScreen({ navigation, route }) {
       },
       body: JSON.stringify({
         to: allPushTokens,
-        title: `${user.displayName} posted an image!`,
+        title: `${FIREBASE_USER.displayName} posted an image!`,
         body: "Open the Bella Vita app to view the image.",
         data: { screen: "Social" },
       }),
     });
   }
-
-  // Updates the latest timestamp in the metadata/latest folder of the database
-  const updateLatestTimestamp = async (datetime) => {
-    try {
-      const metadataDocRef = doc(db, "metadata", "latest");
-      await setDoc(metadataDocRef, { timestamp: datetime }, { merge: true });
-    } catch (error) {
-      console.error("Error updating latest timestamp:", error);
-    }
-  };
 
   async function onPostPressed() {
     if (uri === null) {
@@ -76,7 +65,7 @@ function MakePostScreen({ navigation, route }) {
     }
     setIsPostButtonDisabled(true);
 
-    if (!user) {
+    if (!FIREBASE_USER) {
       console.error("User is not authenticated");
       Alert.alert("Error", "Please log out and log back in.");
       return;
@@ -111,13 +100,12 @@ function MakePostScreen({ navigation, route }) {
               "image",
               downloadURL,
               datetime,
-              user.displayName,
-              user.email,
+              FIREBASE_USER.displayName,
+              FIREBASE_USER.email,
               caption,
               [],
               0
             );
-            await updateLatestTimestamp(datetime);
 
             // Send notification to others
             // await sendPushNotificationHandler();
@@ -147,28 +135,18 @@ function MakePostScreen({ navigation, route }) {
     fileType,
     url,
     createdAt,
-    userName,
+    user,
     email,
     caption,
     comments,
     likes
   ) {
     try {
-      console.log(user.uid);
-      const q = query(
-        collection(db, "groups"),
-        where("users", "array-contains", user.uid)
-      );
-      const querySnapshot = await getDocs(q);
-      const userGroups = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
       const docRef = await addDoc(collection(db, "groups", group.id, "posts"), {
         fileType,
         url,
         createdAt,
-        userName,
+        user,
         email,
         caption,
         comments,
