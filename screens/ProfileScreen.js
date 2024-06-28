@@ -113,7 +113,9 @@ function ProfileScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        <Text style={styles.usernameText}>{userName}'s Profile</Text>
+        <Text style={styles.usernameText}>
+          {userName}'s Profile on {group.name}
+        </Text>
         <Text style={styles.emailText}>Email: {email}</Text>
       </View>
       <View style={styles.imagesContainer}>
