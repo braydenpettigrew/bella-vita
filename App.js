@@ -374,6 +374,10 @@ export default function App() {
     const storeUserData = async () => {
       if (user) {
         try {
+          const pushTokenData = await Notifications.getExpoPushTokenAsync({
+            projectId: "1665e483-bcfa-4038-8648-d69ae25d7e5d",
+          });
+          pushToken = pushTokenData.data;
           const userRef = doc(db, "users", user.uid);
           await setDoc(
             userRef,
@@ -382,6 +386,7 @@ export default function App() {
               email: user.email,
               displayName: user.displayName,
               lastLogin: serverTimestamp(),
+              pushToken: pushToken,
             },
             { merge: true }
           ); // Use merge to update existing document without overwriting
