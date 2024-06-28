@@ -31,12 +31,16 @@ function PostScreen({ route, navigation }) {
             name="chevron-back-outline"
             size={32}
             color="#FFFFFF"
-            onPress={() =>
+            onPress={() => {
+              console.log(group);
               navigation.reset({
                 index: 0,
-                routes: [{ name: "Social" }],
-              })
-            }
+                routes: [
+                  { name: "Groups" },
+                  { name: "Social", params: { group: group } },
+                ],
+              });
+            }}
           />
         ),
       });

@@ -168,7 +168,7 @@ function Post({
                 to: pushToken,
                 title: "Wow you are cool...",
                 body: `${user.displayName} liked your image!`,
-                data: { item: notificationItem, screen: "Post" },
+                data: { item: notificationItem, screen: "Post", group: group },
               }),
             });
           }
@@ -302,7 +302,7 @@ function Post({
             to: pushToken,
             title: "Yo pal",
             body: `${user.displayName} commented on your image!`,
-            data: { item: notificationItem, screen: "Post" },
+            data: { item: notificationItem, screen: "Post", group: group },
           }),
         });
       } else {
