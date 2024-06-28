@@ -5,13 +5,13 @@ import { useState } from "react";
 import MyButton from "../components/MyButton";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import {
-  doc,
-  setDoc,
   addDoc,
   collection,
+  doc,
+  getDoc,
+  getDocs,
   query,
   where,
-  getDocs,
 } from "firebase/firestore";
 import { FIREBASE_AUTH, db, storage } from "../firebaseConfig";
 import { getAllPushTokens } from "../util/http";
@@ -30,11 +30,23 @@ function MakePostScreen({ navigation, route }) {
   }
 
   async function sendPushNotificationHandler() {
-    const pushTokensArray = await getAllPushTokens(token);
+    const groupRef = doc(db, "groups", group.id);
+    const docSnapshot = await getDoc(groupRef);
+    let pushTokens = [];
 
-    let allPushTokens = [];
-    for (item in pushTokensArray) {
-      allPushTokens.push(pushTokensArray[item].pushToken);
+    if (docSnapshot.exists()) {
+      const groupData = docSnapshot.data();
+      const users = groupData.users || []; // Access the users array field
+      const usersQuery = query(
+        collection(db, "users"),
+        where("uid", "in", users)
+      );
+      const querySnapshot = await getDocs(usersQuery);
+
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        pushTokens.push(userData.pushToken);
+      });
     }
 
     await fetch("https://exp.host/--/api/v2/push/send", {
@@ -43,10 +55,10 @@ function MakePostScreen({ navigation, route }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: allPushTokens,
-        title: `${FIREBASE_USER.displayName} posted an image!`,
+        to: pushTokens,
+        title: `${FIREBASE_USER.displayName} posted on ${group.name}!`,
         body: "Open the Bella Vita app to view the image.",
-        data: { screen: "Social" },
+        data: { screen: "Social", group: group },
       }),
     });
   }
@@ -108,7 +120,7 @@ function MakePostScreen({ navigation, route }) {
             );
 
             // Send notification to others
-            // await sendPushNotificationHandler();
+            await sendPushNotificationHandler();
 
             // Navigate to the "Social" screen
             navigation.navigate("Social", {

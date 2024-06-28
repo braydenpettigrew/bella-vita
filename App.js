@@ -153,7 +153,11 @@ function AuthenticatedStack() {
         const screen = response.notification.request.content.data.screen;
 
         if (screen === "Social") {
-          navigation.navigate("SocialStack");
+          const group = response.notification.request.content.data.group;
+          navigation.navigate("SocialStack", {
+            screen: "Social",
+            params: { group },
+          });
         } else if (screen === "Post") {
           const item = response.notification.request.content.data.item;
           const group = response.notification.request.content.data.group;
