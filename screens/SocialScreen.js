@@ -37,6 +37,7 @@ function SocialScreen({ navigation, route }) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [message, setMessage] = useState("");
+  const [group, setGroup] = useState(route.params?.group || {});
 
   useEffect(() => {
     const newMessage = route?.params?.message || false;
@@ -293,7 +294,7 @@ function SocialScreen({ navigation, route }) {
       <View style={styles.makePostContainer}>
         <MyButton
           style={{ width: "50%" }}
-          onPress={() => navigation.navigate("MakePost")}
+          onPress={() => navigation.navigate("MakePost", { group: group })}
         >
           Make a Post
         </MyButton>

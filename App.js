@@ -32,6 +32,7 @@ import NewUserScreen from "./screens/NewUserScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ProfileScreen from "./screens/ProfileScreen";
 import PostScreen from "./screens/PostScreen";
+import SocialGroupsScreen from "./screens/SocialGroupsScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -272,6 +273,13 @@ function SocialStack() {
         headerTintColor: "white",
       }}
     >
+      <Stack.Screen
+        name="Groups"
+        component={SocialGroupsScreen}
+        options={{
+          title: "Groups",
+        }}
+      />
       <Stack.Screen
         name="Social"
         component={SocialScreen}

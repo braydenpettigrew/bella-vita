@@ -4,17 +4,27 @@ import ImagePicker from "../components/ImagePicker";
 import { useState } from "react";
 import MyButton from "../components/MyButton";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { doc, setDoc, addDoc, collection } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  addDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { FIREBASE_AUTH, db, storage } from "../firebaseConfig";
 import { getAllPushTokens } from "../util/http";
 
-function MakePostScreen({ navigation }) {
+function MakePostScreen({ navigation, route }) {
   const [uri, setUri] = useState(null);
   const [caption, setCaption] = useState("");
   const [isPostButtonDisabled, setIsPostButtonDisabled] = useState(false);
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
   const token = user.stsTokenManager.accessToken;
+  const group = route.params.group;
+  console.log("group: ", route.params.group);
 
   function onImageTaken(uri) {
     setUri(uri);
@@ -110,7 +120,7 @@ function MakePostScreen({ navigation }) {
             await updateLatestTimestamp(datetime);
 
             // Send notification to others
-            await sendPushNotificationHandler();
+            // await sendPushNotificationHandler();
 
             // Navigate to the "Social" screen
             navigation.navigate("Social", {
@@ -137,18 +147,28 @@ function MakePostScreen({ navigation }) {
     fileType,
     url,
     createdAt,
-    user,
+    userName,
     email,
     caption,
     comments,
     likes
   ) {
     try {
-      const docRef = await addDoc(collection(db, "files"), {
+      console.log(user.uid);
+      const q = query(
+        collection(db, "groups"),
+        where("users", "array-contains", user.uid)
+      );
+      const querySnapshot = await getDocs(q);
+      const userGroups = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      const docRef = await addDoc(collection(db, "groups", group.id, "posts"), {
         fileType,
         url,
         createdAt,
-        user,
+        userName,
         email,
         caption,
         comments,
