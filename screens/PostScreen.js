@@ -32,7 +32,6 @@ function PostScreen({ route, navigation }) {
             size={32}
             color="#FFFFFF"
             onPress={() => {
-              console.log(group);
               navigation.reset({
                 index: 0,
                 routes: [

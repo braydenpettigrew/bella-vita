@@ -25,6 +25,8 @@ import {
 import { db } from "../firebaseConfig";
 import { useFocusEffect } from "@react-navigation/native";
 import MyAlert from "../components/MyAlert";
+import { useLayoutEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
 
 function SocialScreen({ navigation, route }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -35,6 +37,27 @@ function SocialScreen({ navigation, route }) {
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [message, setMessage] = useState("");
   const [group, setGroup] = useState(route.params?.group || {});
+  const navBack = route.params?.navBack;
+
+  useLayoutEffect(() => {
+    if (navBack) {
+      navigation.setOptions({
+        headerLeft: () => (
+          <Ionicons
+            name="chevron-back-outline"
+            size={32}
+            color="#FFFFFF"
+            onPress={() => {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Groups" }],
+              });
+            }}
+          />
+        ),
+      });
+    }
+  }, [navigation]);
 
   useEffect(() => {
     const newMessage = route?.params?.message || false;
