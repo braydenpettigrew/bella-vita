@@ -1,6 +1,7 @@
 import {
   ActivityIndicator,
   Alert,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -57,6 +58,18 @@ function SocialScreen({ navigation, route }) {
         ),
       });
     }
+  }, [navigation]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: ({ tintColor }) => (
+        <Pressable
+          onPress={() => navigation.navigate("Profile", { group: group })}
+        >
+          <Ionicons name="person-circle-outline" color={tintColor} size={32} />
+        </Pressable>
+      ),
+    });
   }, [navigation]);
 
   useEffect(() => {

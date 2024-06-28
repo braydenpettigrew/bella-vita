@@ -292,16 +292,6 @@ function SocialStack() {
         component={SocialScreen}
         options={{
           title: "Social",
-          headerRight: ({ tintColor }) => (
-            // navigation.navigate("Profile")
-            <Pressable onPress={() => Alert.alert("Currently disabled.")}>
-              <Ionicons
-                name="person-circle-outline"
-                color={tintColor}
-                size={32}
-              />
-            </Pressable>
-          ),
         }}
       />
       <Stack.Screen
