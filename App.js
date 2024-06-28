@@ -26,12 +26,13 @@ import LoadingOverlay from "./components/LoadingOverlay";
 import SocialScreen from "./screens/SocialScreen";
 import MakePostScreen from "./screens/MakePostScreen";
 import { onAuthStateChanged, updateProfile } from "firebase/auth";
-import { FIREBASE_AUTH } from "./firebaseConfig";
+import { FIREBASE_AUTH, db } from "./firebaseConfig";
 import * as Updates from "expo-updates";
 import NewUserScreen from "./screens/NewUserScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ProfileScreen from "./screens/ProfileScreen";
 import PostScreen from "./screens/PostScreen";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import SocialGroupsScreen from "./screens/SocialGroupsScreen";
 
 const Stack = createNativeStackNavigator();
@@ -382,6 +383,35 @@ export default function App() {
       setIsLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    const storeUserData = async () => {
+      if (user) {
+        try {
+          const pushTokenData = await Notifications.getExpoPushTokenAsync({
+            projectId: "1665e483-bcfa-4038-8648-d69ae25d7e5d",
+          });
+          pushToken = pushTokenData.data;
+          const userRef = doc(db, "users", user.uid);
+          await setDoc(
+            userRef,
+            {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              lastLogin: serverTimestamp(),
+              pushToken: pushToken,
+            },
+            { merge: true }
+          ); // Use merge to update existing document without overwriting
+        } catch (error) {
+          console.error("Error storing user data: ", error);
+        }
+      }
+    };
+
+    storeUserData();
+  }, [user]);
 
   async function onFetchUpdateAsync() {
     try {
