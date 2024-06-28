@@ -26,12 +26,13 @@ import LoadingOverlay from "./components/LoadingOverlay";
 import SocialScreen from "./screens/SocialScreen";
 import MakePostScreen from "./screens/MakePostScreen";
 import { onAuthStateChanged, updateProfile } from "firebase/auth";
-import { FIREBASE_AUTH } from "./firebaseConfig";
+import { FIREBASE_AUTH, db } from "./firebaseConfig";
 import * as Updates from "expo-updates";
 import NewUserScreen from "./screens/NewUserScreen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ProfileScreen from "./screens/ProfileScreen";
 import PostScreen from "./screens/PostScreen";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -368,6 +369,30 @@ export default function App() {
       setIsLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    const storeUserData = async () => {
+      if (user) {
+        try {
+          const userRef = doc(db, "users", user.uid);
+          await setDoc(
+            userRef,
+            {
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              lastLogin: serverTimestamp(),
+            },
+            { merge: true }
+          ); // Use merge to update existing document without overwriting
+        } catch (error) {
+          console.error("Error storing user data: ", error);
+        }
+      }
+    };
+
+    storeUserData();
+  }, [user]);
 
   async function onFetchUpdateAsync() {
     try {
