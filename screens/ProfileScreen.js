@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   imagesContainer: {
-    flex: 10,
+    flex: 8,
     padding: 1,
   },
   usernameText: {
@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
   emailText: {
     fontSize: 14,
     color: Colors.primaryDarkGray,
+    paddingBottom: 12,
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
