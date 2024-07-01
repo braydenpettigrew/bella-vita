@@ -34,6 +34,7 @@ import ProfileScreen from "./screens/ProfileScreen";
 import PostScreen from "./screens/PostScreen";
 import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import SocialGroupsScreen from "./screens/SocialGroupsScreen";
+import { FEZZ } from "./constants/admin";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -192,17 +193,19 @@ function AuthenticatedStack() {
           tabBarActiveTintColor: Colors.primaryRed,
         }}
       >
-        <Tab.Screen
-          name="TrackerStack"
-          component={TrackerStack}
-          options={{
-            headerShown: false,
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="add" color={color} size={size} />
-            ),
-            title: "Points",
-          }}
-        />
+        {FEZZ.includes(user.email) && (
+          <Tab.Screen
+            name="TrackerStack"
+            component={TrackerStack}
+            options={{
+              headerShown: false,
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="add" color={color} size={size} />
+              ),
+              title: "Points",
+            }}
+          />
+        )}
         <Tab.Screen
           name="SocialStack"
           component={SocialStack}

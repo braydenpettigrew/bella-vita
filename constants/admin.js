@@ -9,3 +9,12 @@ export const ADMIN = [
   "tpHhGftJLwdRgb2aP4TGqIzTWcB3",
   "vRRoG7QJyCd40wikByCeElPyOux2",
 ];
+export const FEZZ = [
+  "brayden@thepettigrews.org",
+  "sarafezz41@yahoo.com",
+  "mommsy1@yahoo.com",
+  "fezzuoglio@yahoo.com",
+  "johnfezz22@gmail.com",
+  "rachaelmae987@gmail.com",
+  "lukefezzy@yahoo.com",
+];
