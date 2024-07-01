@@ -16,11 +16,6 @@ import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import { Alert, Pressable, Text } from "react-native";
 import * as Notifications from "expo-notifications";
-import {
-  pushTokenExists,
-  storePushToken,
-  storePushTokenWithEmail,
-} from "./util/http";
 import ChangeNameScreen from "./screens/ChangeNameScreen";
 import LoadingOverlay from "./components/LoadingOverlay";
 import SocialScreen from "./screens/SocialScreen";
@@ -84,38 +79,6 @@ function AuthenticatedStack() {
           "Push notifications need the appropriate permissions"
         );
         return;
-      }
-
-      // Get the push token
-      let pushToken;
-      try {
-        const pushTokenData = await Notifications.getExpoPushTokenAsync({
-          projectId: "1665e483-bcfa-4038-8648-d69ae25d7e5d",
-        });
-        pushToken = pushTokenData.data;
-      } catch (error) {
-        Alert.alert("Error", `${error}`);
-      }
-
-      // Check if the push token has already been stored in the backend
-      try {
-        // res will be equal to true or false
-        const res = await pushTokenExists(pushToken, token);
-
-        if (res) {
-          storePushTokenWithEmail(pushToken, user.email, token);
-          return;
-        }
-      } catch (error) {
-        console.error("Error checking push token on the backend: ", error);
-        return;
-      }
-
-      // If the push token doesn't exist on the backend, proceed to store it
-      try {
-        storePushTokenWithEmail(pushToken, user.email, token);
-      } catch (error) {
-        console.error("Error storing push token on Firebase backend: ", error);
       }
     }
 

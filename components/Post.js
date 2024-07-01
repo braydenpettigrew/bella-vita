@@ -1,6 +1,5 @@
 import {
   Alert,
-  FlatList,
   Pressable,
   StyleSheet,
   Text,
@@ -16,14 +15,12 @@ import {
   getDoc,
   getDocs,
   query,
-  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { FIREBASE_AUTH, db } from "../firebaseConfig";
 import MyButton from "./MyButton";
 import { ImageZoom } from "@likashefqet/react-native-image-zoom";
-import { getAllPushTokens } from "../util/http";
 import { useNavigation } from "@react-navigation/native";
 
 function Post({
@@ -166,14 +163,18 @@ function Post({
             // Add user to likedBy, and send notification to user that their post was liked
             likedBy.push(user.uid);
 
-            // Figure out which user to send the notification to.
-            const pushTokensArray = await getAllPushTokens(token);
+            // Retrieve the correct push token from firestore
             let pushToken = [];
-            for (item in pushTokensArray) {
-              if (pushTokensArray[item].email === docSnapshot.data().email) {
-                pushToken.push(pushTokensArray[item].pushToken);
-              }
-            }
+            const usersQuery = query(
+              collection(db, "users"),
+              where("email", "==", docSnapshot.data().email)
+            );
+            const querySnapshot = await getDocs(usersQuery);
+
+            querySnapshot.forEach((doc) => {
+              const userData = doc.data();
+              pushToken.push(userData.pushToken);
+            });
 
             // Prepare data object to send in the notification
             const notificationItem = {
@@ -193,7 +194,7 @@ function Post({
               },
               body: JSON.stringify({
                 to: pushToken,
-                title: "Wow you are cool...",
+                title: group.name,
                 body: `${user.displayName} liked your image!`,
                 data: { item: notificationItem, screen: "Post", group: group },
               }),
@@ -302,14 +303,18 @@ function Post({
         const updatedComments = updatedDoc.data().comments;
         setPostComments(updatedComments);
 
-        // Figure out which user to send the notification to.
-        const pushTokensArray = await getAllPushTokens(token);
+        // Retrieve the correct push token from firestore
         let pushToken = [];
-        for (item in pushTokensArray) {
-          if (pushTokensArray[item].email === docSnapshot.data().email) {
-            pushToken.push(pushTokensArray[item].pushToken);
-          }
-        }
+        const usersQuery = query(
+          collection(db, "users"),
+          where("email", "==", docSnapshot.data().email)
+        );
+        const usersQuerySnapshot = await getDocs(usersQuery);
+
+        usersQuerySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          pushToken.push(userData.pushToken);
+        });
 
         // Prepare data object to send in the notification
         const notificationItem = {
@@ -329,7 +334,7 @@ function Post({
           },
           body: JSON.stringify({
             to: pushToken,
-            title: "Yo pal",
+            title: group.name,
             body: `${user.displayName} commented on your image!`,
             data: { item: notificationItem, screen: "Post", group: group },
           }),

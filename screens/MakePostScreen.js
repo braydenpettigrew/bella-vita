@@ -14,7 +14,6 @@ import {
   where,
 } from "firebase/firestore";
 import { FIREBASE_AUTH, db, storage } from "../firebaseConfig";
-import { getAllPushTokens } from "../util/http";
 
 function MakePostScreen({ navigation, route }) {
   const [uri, setUri] = useState(null);
