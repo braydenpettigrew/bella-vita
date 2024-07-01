@@ -10,7 +10,9 @@ import {
 } from "../util/http";
 import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
-import { FIREBASE_AUTH } from "../firebaseConfig";
+import { FIREBASE_AUTH, db } from "../firebaseConfig";
+import { FEZZ } from "../constants/admin";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 function AddPointsScreen({ navigation }) {
   const [enteredPoints, setEnteredPoints] = useState(0);
@@ -44,12 +46,18 @@ function AddPointsScreen({ navigation }) {
   }
 
   async function sendPushNotificationHandler() {
-    const pushTokensArray = await getAllPushTokens(token);
+    // Only get the pushTokens of users in FEZZ constant
+    let pushTokens = [];
+    const usersQuery = query(
+      collection(db, "users"),
+      where("email", "in", FEZZ)
+    );
+    const querySnapshot = await getDocs(usersQuery);
 
-    let allPushTokens = [];
-    for (item in pushTokensArray) {
-      allPushTokens.push(pushTokensArray[item].pushToken);
-    }
+    querySnapshot.forEach((doc) => {
+      const userData = doc.data();
+      pushTokens.push(userData.pushToken);
+    });
 
     await fetch("https://exp.host/--/api/v2/push/send", {
       method: "POST",
