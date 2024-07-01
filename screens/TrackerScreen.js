@@ -10,6 +10,7 @@ import MyButton from "../components/MyButton";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { FIREBASE_AUTH } from "../firebaseConfig";
 import MyAlert from "../components/MyAlert";
+import { ADMIN } from "../constants/admin";
 
 function TrackerScreen({ navigation, route }) {
   const [points, setPoints] = useState(0);
@@ -39,16 +40,12 @@ function TrackerScreen({ navigation, route }) {
 
   // Check if user is an admin
   useEffect(() => {
-    setIsAdmin(false);
-    if (
-      user.email === "brayden@thepettigrews.org" ||
-      user.email === "sarafezz41@yahoo.com" ||
-      user.email === "mommsy1@yahoo.com" ||
-      user.email === "fezzuoglio@yahoo.com"
-    ) {
+    if (ADMIN.includes(user.email)) {
       setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
     }
-  }, []);
+  }, [user.email]);
 
   // Define a function to update history when deleted
   function handleDeleteHistory(timestamp) {

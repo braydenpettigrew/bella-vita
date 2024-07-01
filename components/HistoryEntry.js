@@ -3,11 +3,22 @@ import Colors from "../constants/colors";
 import { deleteHistory } from "../util/http";
 import IconButton from "./IconButton";
 import { FIREBASE_AUTH } from "../firebaseConfig";
+import { useEffect, useState } from "react";
+import { ADMIN } from "../constants/admin";
 
 function HistoryEntry({ children, onDeleteHistory }) {
   const auth = FIREBASE_AUTH;
   const user = auth.currentUser;
   const token = user.stsTokenManager.accessToken;
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (ADMIN.includes(user.email)) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user.email]);
 
   function makeTimestamp(timestamp) {
     const date = new Date(timestamp);
@@ -51,12 +62,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
   if (children.pointsAdded) {
     item = (
       <View style={styles.deleteContainer}>
-        <View
-          style={[
-            styles.entryContainer,
-            user.email === "brayden@thepettigrews.org" && { flex: 1 },
-          ]}
-        >
+        <View style={[styles.entryContainer, isAdmin && { flex: 1 }]}>
           <Text style={styles.text}>
             {children.user} added {children.pointsAdded} point(s){"\n"}Reason:{" "}
             {children.reason}
@@ -65,7 +71,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
             <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
           </View>
         </View>
-        {user.email === "brayden@thepettigrews.org" && (
+        {isAdmin && (
           <IconButton
             icon="trash-outline"
             size={24}
@@ -78,12 +84,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
   } else {
     item = (
       <View style={styles.deleteContainer}>
-        <View
-          style={[
-            styles.entryContainer,
-            user.email === "brayden@thepettigrews.org" && { flex: 1 },
-          ]}
-        >
+        <View style={[styles.entryContainer, isAdmin && { flex: 1 }]}>
           <Text style={styles.text}>
             {children.user} removed {children.pointsRemoved} point(s){"\n"}
             Reason: {children.reason}
@@ -92,7 +93,7 @@ function HistoryEntry({ children, onDeleteHistory }) {
             <Text style={styles.text}>{makeTimestamp(children.timestamp)}</Text>
           </View>
         </View>
-        {user.email === "brayden@thepettigrews.org" && (
+        {isAdmin && (
           <IconButton
             icon="trash-outline"
             size={24}
