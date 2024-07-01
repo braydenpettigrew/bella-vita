@@ -218,7 +218,7 @@ function SocialScreen({ navigation, route }) {
         <MyAlert message={message} duration={5000} onHide={handleHideAlert} />
       )}
       <View style={styles.titleContainer}>
-        <Title>Bella Vita Media</Title>
+        <Title>{group.name}</Title>
       </View>
       <ScrollView
         style={styles.scrollView}
