@@ -2,6 +2,7 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -39,6 +40,16 @@ function SocialScreen({ navigation, route }) {
   const [message, setMessage] = useState("");
   const [group, setGroup] = useState(route.params?.group || {});
   const navBack = route.params?.navBack;
+  const [refreshing, setRefreshing] = useState(false);
+
+  function onRefresh() {
+    setRefreshing(true);
+    setTimeout(async () => {
+      setImageLimit(10);
+      await fetchLatestDataFromFirestore(10);
+      setRefreshing(false);
+    }, 2000);
+  }
 
   useLayoutEffect(() => {
     if (navBack) {
@@ -209,58 +220,69 @@ function SocialScreen({ navigation, route }) {
       <View style={styles.titleContainer}>
         <Title>Bella Vita Media</Title>
       </View>
-      {isLoaded ? ( // Conditional rendering based on isLoaded state
-        posts.length > 0 ? (
-          <ScrollView style={styles.scrollView}>
-            {posts
-              .slice() // Create a copy of the posts array
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort the copy in descending order based on the createdAt timestamp
-              .map((item, index) => (
-                <Post
-                  key={index}
-                  userName={item.user}
-                  email={item.email}
-                  image={item.url}
-                  caption={item.caption}
-                  timestamp={item.createdAt}
-                  likes={item.likes}
-                  comments={item.comments}
-                  onDelete={deletePostHandler}
-                  group={group}
-                />
-              ))}
-            <View style={styles.loadMoreContainer}>
-              {posts.length < totalPostCount &&
-                (isLoadingMore ? (
-                  <ActivityIndicator
-                    size="large"
-                    color={Colors.primaryBlue}
-                    style={{ marginBottom: 12 }}
+      <ScrollView
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {isLoaded ? ( // Conditional rendering based on isLoaded state
+          posts.length > 0 ? (
+            <>
+              {posts
+                .slice() // Create a copy of the posts array
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort the copy in descending order based on the createdAt timestamp
+                .map((item, index) => (
+                  <Post
+                    key={index}
+                    userName={item.user}
+                    email={item.email}
+                    image={item.url}
+                    caption={item.caption}
+                    timestamp={item.createdAt}
+                    likes={item.likes}
+                    comments={item.comments}
+                    onDelete={deletePostHandler}
+                    group={group}
                   />
-                ) : (
-                  <MyButton
-                    style={{
-                      width: "50%",
-                      marginBottom: 16,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                    buttonStyle={{ backgroundColor: Colors.primaryBlue }}
-                    mode="flat"
-                    onPress={loadMorePressedHandler}
-                    disabled={isLoadingMore}
-                  >
-                    Load more posts
-                  </MyButton>
                 ))}
+              <View style={styles.loadMoreContainer}>
+                {posts.length < totalPostCount &&
+                  (isLoadingMore ? (
+                    <ActivityIndicator
+                      size="large"
+                      color={Colors.primaryBlue}
+                      style={{ marginBottom: 12 }}
+                    />
+                  ) : (
+                    <MyButton
+                      style={{
+                        width: "50%",
+                        marginBottom: 16,
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                      buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+                      mode="flat"
+                      onPress={loadMorePressedHandler}
+                      disabled={isLoadingMore}
+                    >
+                      Load more posts
+                    </MyButton>
+                  ))}
+              </View>
+            </>
+          ) : (
+            <View style={styles.noPostsContainer}>
+              <Text style={styles.noPostsText}>
+                There are no posts available.
+              </Text>
             </View>
-          </ScrollView>
+          )
         ) : (
-          <Text style={styles.noPostsText}>There are no posts available.</Text>
-        )
-      ) : (
-        <LoadingOverlay />
-      )}
+          <LoadingOverlay />
+        )}
+      </ScrollView>
       <View style={styles.makePostContainer}>
         <MyButton
           style={{ width: "50%" }}
@@ -303,6 +325,11 @@ const styles = StyleSheet.create({
   scrollView: {
     flexGrow: 1,
     width: "100%",
+  },
+  noPostsContainer: {
+    marginTop: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
   noPostsText: {
     fontSize: 20,
