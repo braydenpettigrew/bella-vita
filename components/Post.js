@@ -1,5 +1,6 @@
 import {
   Alert,
+  FlatList,
   Pressable,
   StyleSheet,
   Text,
@@ -46,6 +47,12 @@ function Post({
   const user = auth.currentUser;
   const token = user.stsTokenManager.accessToken;
   const navigation = useNavigation();
+  const [likedByList, setLikedByList] = useState([]);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+
+  function toggleDropdown() {
+    setDropdownVisible(!dropdownVisible);
+  }
 
   useEffect(() => {
     // Fetch initial likes count when component mounts
@@ -59,6 +66,7 @@ function Post({
         if (!querySnapshot.empty) {
           const docSnapshot = querySnapshot.docs[0];
           setNumLikes(docSnapshot.data().likes);
+          uidToDisplayName(docSnapshot.data().likedBy);
         } else {
           console.log("No document found with the given timestamp.");
         }
@@ -104,6 +112,25 @@ function Post({
     // Format the date as DD/MM Time
     const formattedDate = `${month}/${day} ${hours}:${minutes} ${ampm}`;
     return formattedDate;
+  }
+
+  async function uidToDisplayName(uidList) {
+    if (uidList.length > 0) {
+      const displayNames = [];
+      const usersQuery = query(
+        collection(db, "users"),
+        where("uid", "in", uidList)
+      );
+      const querySnapshot = await getDocs(usersQuery);
+
+      querySnapshot.forEach((doc) => {
+        const userData = doc.data();
+        displayNames.push(userData.displayName);
+      });
+      setLikedByList(displayNames);
+    } else {
+      setLikedByList([]);
+    }
   }
 
   // Function to handle when a user likes an image
@@ -172,6 +199,7 @@ function Post({
               }),
             });
           }
+          uidToDisplayName(likedBy);
 
           // Update likes count and likedBy array
           await updateDoc(
@@ -218,6 +246,7 @@ function Post({
 
           // Update likes count
           setNumLikes(docSnapshot.data().likes);
+          uidToDisplayName(docSnapshot.data().likedBy);
           // Update comments
           setPostComments(docSnapshot.data().comments);
         } else {
@@ -388,8 +417,32 @@ function Post({
             onPress={handleLikePress}
           />
           <Text>{numLikes}</Text>
+          <IconButton
+            icon={dropdownVisible ? "chevron-up" : "chevron-down"}
+            size={24}
+            color={Colors.primaryRed}
+            onPress={toggleDropdown}
+          />
         </View>
       </View>
+      {dropdownVisible && (
+        <>
+          <Text style={styles.commentsHeaderText}>Liked By</Text>
+          <View style={styles.dropdown}>
+            {likedByList.map((uid) => (
+              <Text
+                key={uid}
+                style={[
+                  styles.commentsText,
+                  { color: Colors.primaryBlue, fontWeight: "500" },
+                ]}
+              >
+                {uid}
+              </Text>
+            ))}
+          </View>
+        </>
+      )}
       <View style={styles.commentContainer}>
         <View style={styles.commentsHeaderContainer}>
           <Text style={styles.commentsHeaderText}>Comments</Text>
@@ -509,5 +562,9 @@ const styles = StyleSheet.create({
   commentInput: {
     padding: 8,
     fontSize: 16,
+  },
+  dropdown: {
+    marginHorizontal: 16,
+    marginTop: 16,
   },
 });
