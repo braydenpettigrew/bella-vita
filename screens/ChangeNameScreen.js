@@ -22,7 +22,7 @@ function ChangeNameScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.infoText}>
         This is the name that will be displayed across the app to you and other
-        users{"\n"}(ex: in the history under Austin's Points)
+        users.
       </Text>
       <View style={styles.inputContainer}>
         <Input
