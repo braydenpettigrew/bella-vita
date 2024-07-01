@@ -2,12 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Title from "../components/Title";
 import Input from "../components/Input";
 import MyButton from "../components/MyButton";
-import {
-  fetchPoints,
-  getAllPushTokens,
-  storeHistory,
-  updatePoints,
-} from "../util/http";
+import { fetchPoints, storeHistory, updatePoints } from "../util/http";
 import { useLayoutEffect, useState } from "react";
 import Colors from "../constants/colors";
 import { FIREBASE_AUTH, db } from "../firebaseConfig";
@@ -65,7 +60,7 @@ function AddPointsScreen({ navigation }) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: allPushTokens,
+        to: pushTokens,
         title: "Austin earned points :)",
         body: "Open the Bella Vita app to see how.",
       }),
