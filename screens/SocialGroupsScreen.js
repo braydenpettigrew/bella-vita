@@ -104,8 +104,7 @@ function SocialGroupsScreen({ navigation }) {
       <View style={styles.infoTextContainer}>
         <Text style={styles.infoText}>
           Note: Currently, users do not have the ability to create groups.
-          Please ask the app administrator (yeah... I have a cool name like
-          that) to create a group for you.
+          Please ask the app administrator to create a group for you.
         </Text>
       </View>
       {user.uid === SUPER_ADMIN && (
