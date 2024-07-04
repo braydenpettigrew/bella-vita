@@ -112,7 +112,7 @@ function Post({
   }
 
   async function uidToDisplayName(uidList) {
-    if (uidList.length > 0) {
+    if (uidList?.length > 0) {
       const displayNames = [];
       const usersQuery = query(
         collection(db, "users"),
