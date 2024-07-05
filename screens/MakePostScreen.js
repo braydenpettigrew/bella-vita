@@ -1,4 +1,11 @@
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import Input from "../components/Input";
 import ImagePicker from "../components/ImagePicker";
 import { useState } from "react";
@@ -19,6 +26,7 @@ function MakePostScreen({ navigation, route }) {
   const [uri, setUri] = useState(null);
   const [caption, setCaption] = useState("");
   const [isPostButtonDisabled, setIsPostButtonDisabled] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
   const auth = FIREBASE_AUTH;
   const FIREBASE_USER = auth.currentUser;
   const token = FIREBASE_USER.stsTokenManager.accessToken;
@@ -75,6 +83,7 @@ function MakePostScreen({ navigation, route }) {
       return;
     }
     setIsPostButtonDisabled(true);
+    setIsPosting(true);
 
     if (!FIREBASE_USER) {
       console.error("User is not authenticated");
@@ -131,6 +140,7 @@ function MakePostScreen({ navigation, route }) {
             Alert.alert("Error during post creation: ", e);
           } finally {
             setIsPostButtonDisabled(false);
+            setIsPosting(false);
           }
         }
       );
@@ -138,6 +148,7 @@ function MakePostScreen({ navigation, route }) {
       console.error("Error fetching image: ", error);
       Alert.alert("Error fetching image: ", error);
       setIsPostButtonDisabled(false);
+      setIsPosting(false);
     }
   }
 
@@ -169,32 +180,41 @@ function MakePostScreen({ navigation, route }) {
   }
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        <View style={styles.postButtonContainer}>
-          <MyButton
-            onPress={onPostPressed}
-            style={styles.postButton}
-            disabled={isPostButtonDisabled}
-          >
-            Post
-          </MyButton>
+    <>
+      {isPosting ? (
+        <View style={styles.postingContainer}>
+          <ActivityIndicator />
+          <Text style={{ marginTop: 12 }}>Creating your post...</Text>
         </View>
-        <View style={styles.inputContainer}>
-          <Input
-            label="Caption"
-            textInputConfig={{
-              onChangeText: setCaption,
-              value: caption,
-              multiline: true,
-              placeholder: "Enter a caption for your post...",
-            }}
-            style={styles.input}
-          />
-        </View>
-        <ImagePicker onImageTaken={onImageTaken} />
-      </View>
-    </ScrollView>
+      ) : (
+        <ScrollView>
+          <View style={styles.container}>
+            <View style={styles.postButtonContainer}>
+              <MyButton
+                onPress={onPostPressed}
+                style={styles.postButton}
+                disabled={isPostButtonDisabled}
+              >
+                Post
+              </MyButton>
+            </View>
+            <View style={styles.inputContainer}>
+              <Input
+                label="Caption"
+                textInputConfig={{
+                  onChangeText: setCaption,
+                  value: caption,
+                  multiline: true,
+                  placeholder: "Enter a caption for your post...",
+                }}
+                style={styles.input}
+              />
+            </View>
+            <ImagePicker onImageTaken={onImageTaken} />
+          </View>
+        </ScrollView>
+      )}
+    </>
   );
 }
 
@@ -203,6 +223,12 @@ export default MakePostScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  postingContainer: {
+    height: "100%",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
   },
   postButtonContainer: {
     alignItems: "flex-end",
