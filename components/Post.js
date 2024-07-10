@@ -1,9 +1,13 @@
 import {
+  ActivityIndicator,
   Alert,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import Colors from "../constants/colors";
@@ -293,7 +297,12 @@ function Post({
           {
             comments: [
               ...currentComments,
-              { message: commentInput, user: user.displayName },
+              {
+                message: commentInput,
+                user: user.displayName,
+                uid: user.uid,
+                timestamp: Date.now(),
+              },
             ],
           },
           { merge: true }
@@ -366,10 +375,141 @@ function Post({
     );
   }
 
+  // Handle when a user long presses on their own comment.
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editCommentInput, setEditCommentInput] = useState("");
+  const [commentToUpdate, setCommentToUpdate] = useState(null);
+  const [editCommentButtonDisabled, setEditCommentButtonDisabled] =
+    useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleLongPress = (comment) => {
+    if (comment.uid !== user.uid) {
+      return;
+    }
+    if (!comment.timestamp || !comment.uid) {
+      Alert.alert("Error Editing Comment", "This comment is too old to edit.");
+      return;
+    }
+    setCommentToUpdate(comment);
+    setEditCommentInput(comment.message);
+    setEditModalVisible(true);
+  };
+
+  async function handleEditComment(updatedComment) {
+    if (commentToUpdate.message === updatedComment) {
+      Alert.alert(
+        "Error Editing Comment",
+        "You must change the comment in order to edit it."
+      );
+    } else {
+      setEditCommentButtonDisabled(true);
+      setIsEditing(true);
+      try {
+        const q = query(
+          collection(db, "groups", group.id, "posts"),
+          where("createdAt", "==", timestamp)
+        );
+
+        // Execute the query
+        const querySnapshot = await getDocs(q);
+
+        // Check if the document exists
+        if (!querySnapshot.empty) {
+          const docSnapshot = querySnapshot.docs[0];
+          const postDocRef = doc(
+            db,
+            "groups",
+            group.id,
+            "posts",
+            docSnapshot.id
+          );
+
+          // Get the current comments array
+          const currentComments = docSnapshot.data().comments;
+
+          // Find the comment to update based on its timestamp
+          const updatedComments = currentComments.map((comment) => {
+            if (comment.timestamp === commentToUpdate.timestamp) {
+              return {
+                ...comment,
+                message: updatedComment,
+                timestamp: Date.now(),
+              };
+            } else {
+              return comment;
+            }
+          });
+
+          // Update Firestore document with the updated comments
+          await updateDoc(postDocRef, {
+            comments: updatedComments,
+          });
+
+          // Optionally, update local state or trigger a refresh
+          const updatedDoc = await getDoc(postDocRef);
+          const updatedCommentsFromFirestore = updatedDoc.data().comments;
+          setPostComments(updatedCommentsFromFirestore);
+          setEditCommentButtonDisabled(false);
+          setIsEditing(false);
+          setEditModalVisible(false);
+        } else {
+          console.log("No document found with the given timestamp.");
+          setEditCommentButtonDisabled(false);
+          setIsEditing(false);
+          setEditModalVisible(false);
+        }
+      } catch (error) {
+        console.error("Error updating document: ", error);
+        setEditCommentButtonDisabled(false);
+        setIsEditing(false);
+        setEditModalVisible(false);
+      }
+    }
+  }
+
   const imageZoomRef = useRef();
 
   return (
     <View style={styles.container}>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={editModalVisible}
+        onRequestClose={() => {
+          setEditModalVisible(!setEditModalVisible);
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Edit Comment</Text>
+            <View style={styles.editCommentInputContainer}>
+              <TextInput
+                style={styles.commentInput}
+                value={editCommentInput}
+                onChangeText={setEditCommentInput}
+                placeholder="Comment..."
+              />
+            </View>
+            <View style={styles.editButtonsContainer}>
+              <MyButton
+                style={styles.button}
+                buttonStyle={{ backgroundColor: Colors.primaryBlue }}
+                disabled={editCommentButtonDisabled}
+                onPress={() => handleEditComment(editCommentInput)}
+              >
+                {isEditing ? <ActivityIndicator /> : "Edit"}
+              </MyButton>
+              <MyButton
+                style={styles.button}
+                onPress={() => setEditModalVisible(!editModalVisible)}
+              >
+                Cancel
+              </MyButton>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View style={styles.postHeaderContainer}>
         <Pressable
           onPress={() => {
@@ -453,12 +593,18 @@ function Post({
           <Text style={styles.commentsHeaderText}>Comments</Text>
         </View>
         {postComments?.map((comment, index) => (
-          <Text key={index} style={styles.commentsText}>
-            <Text style={{ color: Colors.primaryBlue, fontWeight: "500" }}>
-              {comment.user}{" "}
-            </Text>{" "}
-            {comment.message}
-          </Text>
+          <TouchableOpacity
+            key={index}
+            onLongPress={() => handleLongPress(comment)}
+            activeOpacity={1}
+          >
+            <Text style={styles.commentsText}>
+              <Text style={{ color: Colors.primaryBlue, fontWeight: "500" }}>
+                {comment.user}{" "}
+              </Text>{" "}
+              {comment.message}
+            </Text>
+          </TouchableOpacity>
         ))}
         <View style={styles.commentSubContainer}>
           <View style={styles.commentInputContainer}>
@@ -564,6 +710,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryGray,
     borderRadius: 8,
   },
+  editCommentInputContainer: {
+    justifyContent: "center",
+    backgroundColor: Colors.primaryGray,
+    borderRadius: 8,
+    marginBottom: 12,
+    width: 275,
+  },
   commentInput: {
     padding: 8,
     fontSize: 16,
@@ -571,5 +724,47 @@ const styles = StyleSheet.create({
   dropdown: {
     marginHorizontal: 16,
     marginTop: 16,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    marginTop: 12,
+    marginHorizontal: 6,
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: Colors.primaryDarkBlue,
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  editButtonsContainer: {
+    flexDirection: "row",
+    borderTopWidth: 2,
+    borderTopColor: Colors.primaryGray,
   },
 });
