@@ -41,7 +41,6 @@ function ImagePicker({ onImageTaken }) {
 
     const image = await launchCameraAsync({
       allowsEditing: true,
-      aspect: [16, 9],
       quality: 0.5,
       base64: true,
     });
@@ -59,7 +58,6 @@ function ImagePicker({ onImageTaken }) {
 
     const image = await launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [16, 9],
       quality: 0.5,
     });
 
